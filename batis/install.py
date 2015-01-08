@@ -44,7 +44,10 @@ class ApplicationInstaller(object):
                                                      os.name))
 
     def install_commands(self):
-        pass
+        for command_info in self.metadata.get('commands', []):
+            source = os.path.join(self.destination('application'), command_info['target'])
+            link = os.path.join(self.destination('commands'), command_info['name'])
+            os.symlink(source, link)
 
     def install_icons(self):
         pass

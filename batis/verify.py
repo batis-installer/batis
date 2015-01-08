@@ -35,7 +35,21 @@ class UnpackedDirVerifier(object):
                 problems.append('batis_info/metadata.json is not valid JSON: %s' % e)
                 return
 
-        # TODO: Verify the contents of the metadata file
+        for cmd_info in self.metadata.get('commands', []):
+            if not isinstance(cmd_info, dict):
+                problems.append('Non-dictionary in commands list: %r' % cmd_info)
+                continue
+
+            if 'target' not in cmd_info:
+                problems.append('No target field in command info: %r' % cmd_info)
+
+            if 'name' not in cmd_info:
+                problems.append('No name field in command info: %r' % cmd_info)
+
+            if not os.path.isfile(self._relative(cmd_info['target'])):
+                problems.append('Command target does not exist in package: %r' % cmd_info['target'])
+
+        # TODO: Verify contents of metadata
 
     def verify_desktop_files(self, problems):
         desktop_dir = self._relative('batis_info', 'desktop')

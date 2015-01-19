@@ -2,6 +2,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import shutil
 from subprocess import check_call
 
@@ -50,10 +51,23 @@ class ApplicationInstaller(object):
             os.symlink(source, link)
 
     def install_icons(self):
-        pass
-        # check_call(['xdg-icon-resource', 'install', '--noupdate', '--theme', theme,
-        #       '--size', size, '--context', context, file])
-        # check_call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
+        for theme in os.listdir(self._relative('batis_info', 'icons')):
+            themedir = self._relative('batis_info', 'icons', theme)
+            for sizestr in os.listdir(themedir):
+                m = re.match(r'(\d+)x\1', sizestr)
+                if not m:
+                    continue
+                size = m.group(1)
+                sizedir = os.path.join(themedir, sizestr)
+                for context in os.listdir(sizedir):
+                    contextdir = os.path.join(sizedir, context)
+                    for basename in os.listdir(contextdir):
+                        file = os.path.join(contextdir, basename)
+                        check_call(['xdg-icon-resource', 'install', '--noupdate',
+                              '--theme', theme, '--size', size,
+                              '--context', context, file])
+
+            check_call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
 
     def install_mimetypes(self):
         for file in glob.glob(self._relative('batis_info', 'mime', '*.xml')):

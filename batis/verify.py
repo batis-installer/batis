@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import tarfile
 from xml.etree import ElementTree
 import sys
@@ -35,7 +36,7 @@ class UnpackedDirVerifier(object):
                 problems.append('batis_info/metadata.json is not valid JSON: %s' % e)
                 return
 
-        for cmd_info in self.metadata.get('commands', []):
+        for cmd_info in metadata.get('commands', []):
             if not isinstance(cmd_info, dict):
                 problems.append('Non-dictionary in commands list: %r' % cmd_info)
                 continue
@@ -97,7 +98,50 @@ class UnpackedDirVerifier(object):
         # Todo: verify that the XML contains mimetype data
 
     def verify_icons(self, problems):
-        pass
+        pa = problems.append
+        icondir = self._relative('batis_info', 'icons')
+        if not os.path.exists(icondir):
+            # This is fine, it's optional
+            return
+
+        if not os.path.isdir(icondir):
+            pa('batis_info/icons should be a directory')
+            return
+
+        themes = os.listdir(icondir)
+        if themes and ('hicolor' not in themes):
+            pa('Icon themes do not include hicolor, the default theme: %r' % themes)
+        for theme in themes:
+            themedir = os.path.join(icondir, theme)
+            if not os.path.isdir(themedir):
+                pa('batis_info/icons should only contain theme directories. '
+                    '%s is not a directory' % themedir)
+                continue
+
+            for sizestr in os.listdir(themedir):
+                sizedir = os.path.join(themedir, sizestr)
+                if not os.path.isdir(sizedir):
+                    pa('Icon theme directories should only contain size directories. '
+                       '%s is not a directory' % sizedir)
+                    continue
+                m = re.match(r'(\d+)x\1', sizestr)
+                if not m:
+                    problems.append('Icon size directory does not match pattern NxN: %r' % sizestr)
+                    continue
+
+                for context in os.listdir(sizedir):
+                    contextdir = os.path.join(sizedir, context)
+                    if not os.path.isdir(contextdir):
+                        pa('Icon size directories should only contain context directories. '
+                           '%s is not a directory.' % contextdir)
+                        continue
+
+                    for basename in os.listdir(contextdir):
+                        file = os.path.join(contextdir, basename)
+                        if not os.path.isfile(file):
+                            pa('Icon context directories should contain icon files. '
+                               '%s is not a file.' % file)
+
 
     def verify(self):
         problems = []

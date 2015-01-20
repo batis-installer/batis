@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>403</width>
     <height>266</height>
    </rect>
   </property>
@@ -33,16 +33,19 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>9</number>
+      </property>
       <item>
-       <widget class="QGraphicsView" name="app_logo">
+       <widget class="QLabel" name="app_icon">
         <property name="maximumSize">
          <size>
           <width>48</width>
           <height>48</height>
          </size>
         </property>
-        <property name="interactive">
-         <bool>false</bool>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -111,6 +114,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>user_install_button</tabstop>
+  <tabstop>system_install_button</tabstop>
+  <tabstop>cancel_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

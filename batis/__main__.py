@@ -14,5 +14,10 @@ def main(argv=None):
         from .verify import main
         main(argv[2:])
 
+    elif subcmd == 'unpack':
+        from .tarball import unpack_app_tarball
+        dir = unpack_app_tarball(argv[2])
+        print('dir: {!r}'.format(dir))
+
 if __name__ == '__main__':
     main()

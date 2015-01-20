@@ -16,6 +16,11 @@ Packaging an application using Batis
    * :file:`metadata.json` - a JSON object containing information about your
      application, including:
 
+     - ``name`` - the human readable name of your application.
+     - ``byline`` - a very brief description of your application, which will be
+       displayed below the name in the installer.
+     - ``icon`` - the relative path to an icon file within your application
+       directory. This will be displayed at 48x48 pixels in the installer.
      - ``commands`` - list of objects, each with 'name' and 'target' keys.
        ``target``, a path relative to the root of your application directory,
        will be symlinked as ``name`` to a location on :envvar:`PATH`.

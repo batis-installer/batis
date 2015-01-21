@@ -36,6 +36,27 @@ class UnpackedDirVerifier(object):
                 problems.append('batis_info/metadata.json is not valid JSON: %s' % e)
                 return
 
+        if 'name' in metadata:
+            if not isinstance(metadata['name'], str):
+                problems.append('name field in metadata is not a string: %r' % metadata['name'])
+        else:
+            problems.append('Missing name field in metadata')
+
+        if 'byline' in metadata:
+            if not isinstance(metadata['byline'], str):
+                problems.append('byline field in metadata is not a string: %r' % metadata['byline'])
+        else:
+            problems.append('Missing byline field in metadata')
+
+        if 'icon' in metadata:
+            if isinstance(metadata['icon'], str):
+                if not os.path.isfile(self._relative(metadata['icon'])):
+                    problems.append('Icon file specified in metadata does not exist: %s' % metadata['icon'])
+            else:
+                problems.append('icon field in metadata is not a string: %r' % metadata['icon'])
+        else:
+            problems.append('Missing icon field in metadata')
+
         for cmd_info in metadata.get('commands', []):
             if not isinstance(cmd_info, dict):
                 problems.append('Non-dictionary in commands list: %r' % cmd_info)

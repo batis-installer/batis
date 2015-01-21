@@ -7,6 +7,7 @@ import sys
 
 from .ui_main import Ui_MainWindow
 from .ui_install_prompt import Ui_Form
+from .ui_install_progress import Ui_ProgressWidget
 
 class Main(QtWidgets.QMainWindow):
     tmpdir = None
@@ -47,6 +48,7 @@ class Main(QtWidgets.QMainWindow):
             iconpath = os.path.join(self.tmpdir, self.metadata['icon'])
             self.form.app_icon.setPixmap(QtGui.QPixmap(iconpath))
 
+        self.form.user_install_button.clicked.connect(self.show_install_progress)
         self.form.cancel_button.clicked.connect(self.close)
 
         self.setCentralWidget(newwidget)
@@ -54,6 +56,15 @@ class Main(QtWidgets.QMainWindow):
     def cleanup_tmpdir(self):
         if self.tmpdir:
             shutil.rmtree(self.tmpdir)
+
+    def show_install_progress(self):
+        newwidget = QtWidgets.QWidget()
+        self.progress = Ui_ProgressWidget()
+        self.progress.setupUi(newwidget)
+        self.progress.installing_app.setText("Installing {}...".format(self.metadata['name']))
+
+        self.setCentralWidget(newwidget)
+        self.adjustSize()
 
 
 def main():

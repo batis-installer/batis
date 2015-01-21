@@ -54,6 +54,7 @@ class Main(QtWidgets.QMainWindow):
             self.form.app_icon.setPixmap(QtGui.QPixmap(iconpath))
 
         self.form.user_install_button.clicked.connect(self.user_install)
+        self.form.system_install_button.clicked.connect(self.system_install)
         self.form.cancel_button.clicked.connect(self.close)
 
         self.setCentralWidget(newwidget)
@@ -71,7 +72,7 @@ class Main(QtWidgets.QMainWindow):
         argv = self.metadata['launch']
         self.app_process.start(argv[0], argv[1:])
 
-    def user_install(self):
+    def do_install(self, argv):
         self.show_install_progress()
         self.subp = QtCore.QProcess(self)
 
@@ -118,8 +119,18 @@ class Main(QtWidgets.QMainWindow):
 
         self.subp.readyReadStandardOutput.connect(read_stdout)
         self.subp.readyReadStandardError.connect(read_stderr)
-        self.subp.start(sys.executable, ['-m', 'batis', 'backend-install',
+        self.subp.start(argv[0], argv[1:])
+
+    def user_install(self):
+        self.do_install([sys.executable, '-m', 'batis', 'backend-install',
                                          '--backend', self.tmpdir])
+
+    def system_install(self):
+        batis_dir = os.path.dirname(os.path.dirname(__file__))
+        _root_install = os.path.join(batis_dir, '_root_install.py')
+        argv = ['pkexec', sys.executable, _root_install,
+                '--backend', '--system', self.tmpdir]
+        self.do_install(argv,)
 
     def show_install_progress(self):
         newwidget = QtWidgets.QWidget()

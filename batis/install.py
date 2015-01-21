@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 from subprocess import check_call
+import errno
 
 install_schemes = {
     'system': {
@@ -37,12 +38,19 @@ class ApplicationInstaller(object):
     def destination(self, component):
         XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME') or "~/.local/share"
         path = os.path.expanduser(self.scheme[component].format(XDG_DATA_HOME=XDG_DATA_HOME))
-        os.makedirs(path, mode=0o755)
+        try:
+            os.makedirs(path, mode=0o755)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
         return path
 
     def copy_application(self):
-        shutil.copytree(self.directory, os.path.join(self.destination('application'),
-                                                     os.name))
+        basename = os.path.basename(self.directory)
+        destination = os.path.join(self.destination('application'), basename)
+        if os.path.isdir(destination):
+            shutil.rmtree(destination)
+        shutil.copytree(self.directory, destination)
 
     def install_commands(self):
         for command_info in self.metadata.get('commands', []):
@@ -64,7 +72,7 @@ class ApplicationInstaller(object):
                     for basename in os.listdir(contextdir):
                         file = os.path.join(contextdir, basename)
                         check_call(['xdg-icon-resource', 'install', '--noupdate',
-                              '--theme', theme, '--size', size,
+                              '--novendor', '--theme', theme, '--size', size,
                               '--context', context, file])
 
             check_call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
@@ -75,23 +83,35 @@ class ApplicationInstaller(object):
 
     def install_desktop_files(self):
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
-        check_call(['desktop-file-install', '--rebuild-mime-info-cache'] + files)
+        if files:
+            check_call(['desktop-file-install', '--rebuild-mime-info-cache'] + files)
 
-    def install(self):
+    def install(self, backend=False):
+        def emit(msg):
+            if backend:
+                print(msg)
+        emit('step: copy_dir')
         self.copy_application()
+        emit('step: install_commands')
         self.install_commands()
+        emit('step: install_icons')
         self.install_icons()
+        emit('step: install_mimetypes')
         self.install_mimetypes()
+        emit('step: install_desktop')
         self.install_desktop_files()
+        emit('finished')
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--system', action='store_true',
             help='Install systemwide, instead of for the user')
+    ap.add_argument('--backend', action='store_true',
+            help='Print steps to stdout to update the GUI installer')
     ap.add_argument('directory', help='The unpacked application tarball')
     args = ap.parse_args(argv)
     ai = ApplicationInstaller(args.directory, 'system' if args.system else 'user')
-    ai.install()
+    ai.install(args.backend)
 
 if __name__ == '__main__':
     main()

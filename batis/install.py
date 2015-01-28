@@ -4,8 +4,10 @@ import json
 import os
 import re
 import shutil
-from subprocess import check_call
+from subprocess import check_call, PIPE, STDOUT
 import errno
+
+from . import distro
 
 install_schemes = {
     'system': {
@@ -44,6 +46,29 @@ class ApplicationInstaller(object):
             if e.errno != errno.EEXIST:
                 raise
         return path
+
+    def install_system_packages(self, backend):
+        """Install system packages specified in metadata.
+
+        If this fails, returns a short string representing the reason.
+        """
+        if 'system_packages' not in self.metadata:
+            return
+
+        spec = distro.select_dependencies_spec(self.metadata['system_packages'])
+        if spec is None:
+            return 'no distro match'
+
+
+        kwargs = {}
+        if backend:
+            kwargs['sudo_cmd'] = 'pkexec'
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = STDOUT
+        stdout, stderr, returncode = distro.install_packages(spec['packages'],
+                                     sudo_cmd=('pkexec' if backend else 'sudo'))
+        if returncode != 0:
+            return 'install failed'
 
     def copy_application(self):
         basename = os.path.basename(self.directory)
@@ -90,6 +115,11 @@ class ApplicationInstaller(object):
         def emit(msg):
             if backend:
                 print(msg)
+
+        emit('step: system_packages')
+        failure = self.install_system_packages(backend)
+        if failure:
+            emit('problem: system_packages: ' + failure)
         emit('step: copy_dir')
         self.copy_application()
         emit('step: install_commands')

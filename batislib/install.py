@@ -10,7 +10,7 @@ import errno
 from . import distro
 
 # These locations are not all used by the code below; it shells out to XDG
-# commands like xdg-mime and desktop-file-install. They should install
+# commands like xdg-mime and xdg-icon-resource. They should install
 # to these locations, however.
 install_schemes = {
     'system': {
@@ -114,7 +114,8 @@ class ApplicationInstaller(object):
     def install_desktop_files(self):
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
         if files:
-            check_call(['desktop-file-install', '--rebuild-mime-info-cache'] + files)
+            check_call(['desktop-file-install', '--rebuild-mime-info-cache',
+                        '--dir', self.destination('desktop')] + files)
 
     def install(self, backend=False):
         def emit(msg):

@@ -17,4 +17,3 @@ Name=Browse Gallery
 Exec=fooview --create-new
 Name=Create a new Foo!
 Icon=fooview-new
-    

@@ -82,7 +82,9 @@ class ApplicationInstaller(object):
 
     def install_commands(self):
         for command_info in self.metadata.get('commands', []):
-            source = os.path.join(self.destination('application'), command_info['target'])
+            source = os.path.join(self.destination('application'),
+                                  os.path.basename(self.directory),
+                                  command_info['target'])
             link = os.path.join(self.destination('commands'), command_info['name'])
             os.symlink(source, link)
 

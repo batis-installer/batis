@@ -21,3 +21,7 @@ def main(argv=None):
     elif subcmd == 'backend-install':
         from .install import main
         main(argv[2:])
+
+    else:
+        print('Unknown subcommand: {!r}'.format(subcmd))
+        sys.exit(1)

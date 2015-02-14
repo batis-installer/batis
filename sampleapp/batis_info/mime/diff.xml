@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/x-diff">
+    <comment>Differences between files</comment>
+    <comment xml:lang="af">verskille tussen lêers</comment>
+    <magic priority="50">
+        <match type="string" offset="0" value="diff\t"/>
+        <match type="string" offset="0" value="***\t"/>
+        <match type="string" offset="0" value="Common subdirectories: "/>
+    </magic>
+    <glob pattern="*.diff"/>
+    <glob pattern="*.patch"/>
+  </mime-type>
+</mime-info>

@@ -1,0 +1,3 @@
+#!/usr/bin/python3
+from batislib import main
+main()

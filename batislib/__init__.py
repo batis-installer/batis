@@ -1,6 +1,5 @@
 import sys
 
-
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -22,6 +21,3 @@ def main(argv=None):
     elif subcmd == 'backend-install':
         from .install import main
         main(argv[2:])
-
-if __name__ == '__main__':
-    main()

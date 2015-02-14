@@ -109,6 +109,10 @@ class UnpackedDirVerifier(object):
             if os.path.splitext(name)[1] != '.xml':
                 problems.append('Non .xml file in batis_info/mime: %r' % name)
             else:
+                if not re.match(r'[a-zA-Z]+-\w+', os.path.splitext(name)[0]):
+                    problems.append(
+                        'Mime file should have vendor prefix (e.g. myorg-foo.xml): %r'
+                                % name)
                 path = os.path.join(mime_dir, name)
                 try:
                     et = ElementTree.parse(path)

@@ -9,6 +9,9 @@ import errno
 
 from . import distro
 
+# These locations are not all used by the code below; it shells out to XDG
+# commands like xdg-mime and desktop-file-install. They should install
+# to these locations, however.
 install_schemes = {
     'system': {
         'application': '/opt',

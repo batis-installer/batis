@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install application
+# This is for opening files, not launching from a menu
+NoDisplay=true
+Exec=/home/takluyver/Code/batis/batis gui-install-tarball %f
+Terminal=false
+MimeType=application/x-application-package-tar;
+Name[en_GB]=batis.desktop

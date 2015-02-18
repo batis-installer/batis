@@ -26,7 +26,7 @@ class Main(QtWidgets.QMainWindow):
         return self.metadata.get('name', 'application')
 
     def start(self, argv):
-        self.unpack(argv[1])
+        self.unpack(argv[0])
 
     def unpack(self, tarball_path):
         self.subp = QtCore.QProcess(self)
@@ -146,12 +146,12 @@ class Main(QtWidgets.QMainWindow):
         self.adjustSize()
 
 
-def main():
-    app = QtWidgets.QApplication(sys.argv)
+def main(argv):
+    app = QtWidgets.QApplication(['batis-gui'] + argv)
     window = Main(app)
     window.show()
-    window.start(sys.argv)
+    window.start(argv)
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

@@ -22,6 +22,10 @@ def main(argv=None):
         from .install import main
         main(argv[2:])
 
+    elif subcmd == 'gui-install-tarball':
+        from gui.app import main
+        main(argv[2:])
+
     else:
         print('Unknown subcommand: {!r}'.format(subcmd))
         sys.exit(1)

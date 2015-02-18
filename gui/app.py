@@ -9,6 +9,8 @@ from .ui_main import Ui_MainWindow
 from .ui_install_prompt import Ui_Form
 from .ui_install_progress import Ui_ProgressWidget
 
+batis_dir = os.path.dirname(os.path.dirname(__file__))
+
 class Main(QtWidgets.QMainWindow):
     tmpdir = None
 
@@ -29,7 +31,7 @@ class Main(QtWidgets.QMainWindow):
     def unpack(self, tarball_path):
         self.subp = QtCore.QProcess(self)
         self.subp.finished.connect(self.unpack_finished)
-        self.subp.start(sys.executable, ['-m', 'batis', 'unpack', tarball_path])
+        self.subp.start(os.path.join(batis_dir, 'batis'),['unpack', tarball_path])
 
     def unpack_finished(self, exitcode, exitstatus):
         if exitcode == 0:
@@ -122,11 +124,10 @@ class Main(QtWidgets.QMainWindow):
         self.subp.start(argv[0], argv[1:])
 
     def user_install(self):
-        self.do_install([sys.executable, '-m', 'batis', 'backend-install',
+        self.do_install([os.path.join(batis_dir, 'batis'), 'backend-install',
                                          '--backend', self.tmpdir])
 
     def system_install(self):
-        batis_dir = os.path.dirname(os.path.dirname(__file__))
         _root_install = os.path.join(batis_dir, '_root_install.py')
         argv = ['pkexec', sys.executable, _root_install,
                 '--backend', '--system', self.tmpdir]

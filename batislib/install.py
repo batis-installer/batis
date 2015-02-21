@@ -1,6 +1,7 @@
 import argparse
 import glob
 import json
+import logging
 import os
 import re
 import shutil
@@ -8,6 +9,8 @@ from subprocess import check_call, PIPE, STDOUT
 import errno
 
 from . import distro
+
+log = logging.getLogger(__name__)
 
 # These locations are not all used by the code below; it shells out to XDG
 # commands like xdg-mime and xdg-icon-resource. They should install
@@ -58,10 +61,16 @@ class ApplicationInstaller(object):
         if 'system_packages' not in self.metadata:
             return
 
+        log.info('Installing system packages')
+
         spec = distro.select_dependencies_spec(self.metadata['system_packages'])
         if spec is None:
+            log.warn(("Couldn't find dependencies for this distro. "
+                      "Please ensure these are installed: %s"),
+                      self.metadata['dependencies_description'])
             return 'no distro match'
 
+        log.info('Packages to install: %r', spec['packages'])
 
         kwargs = {}
         if backend:
@@ -71,16 +80,21 @@ class ApplicationInstaller(object):
         stdout, stderr, returncode = distro.install_packages(spec['packages'],
                                      sudo_cmd=('pkexec' if backend else 'sudo'))
         if returncode != 0:
+            log.warn(("Installing dependencies failed. "
+                      "Please ensure these are installed: %s"),
+                      self.metadata['dependencies_description'])
             return 'install failed'
 
     def copy_application(self):
         basename = os.path.basename(self.directory)
         destination = os.path.join(self.destination('application'), basename)
+        log.info('Copying application directory to %s', destination)
         if os.path.isdir(destination):
             shutil.rmtree(destination)
         shutil.copytree(self.directory, destination)
 
     def install_commands(self):
+        log.info("Symlinking commands to %s", self.destination('commands'))
         for command_info in self.metadata.get('commands', []):
             source = os.path.join(self.destination('application'),
                                   os.path.basename(self.directory),
@@ -89,6 +103,7 @@ class ApplicationInstaller(object):
             os.symlink(source, link)
 
     def install_icons(self):
+        log.info("Installing icons")
         for theme in os.listdir(self._relative('batis_info', 'icons')):
             themedir = self._relative('batis_info', 'icons', theme)
             for sizestr in os.listdir(themedir):
@@ -109,10 +124,12 @@ class ApplicationInstaller(object):
 
     def install_mimetypes(self):
         for file in glob.glob(self._relative('batis_info', 'mime', '*.xml')):
+            log.info("Installing mimetype package file %s", file)
             check_call(['xdg-mime', 'install', file])
 
     def install_desktop_files(self):
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
+        log.info("Installing desktop files: %r", files)
         if files:
             check_call(['desktop-file-install', '--rebuild-mime-info-cache',
                         '--dir', self.destination('desktop')] + files)
@@ -146,6 +163,10 @@ def main(argv=None):
             help='Print steps to stdout to update the GUI installer')
     ap.add_argument('directory', help='The unpacked application tarball')
     args = ap.parse_args(argv)
+    if args.backend:
+        log.addHandler(logging.NullHandler())
+    else:
+        logging.basicConfig(level=logging.INFO)
     ai = ApplicationInstaller(args.directory, 'system' if args.system else 'user')
     ai.install(args.backend)
 

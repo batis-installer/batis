@@ -106,8 +106,13 @@ class ApplicationInstaller(object):
             os.symlink(source, link)
 
     def install_icons(self):
+        icon_dir = self._relative('batis_info', 'icons')
+        if not os.path.isdir(icon_dir):
+            log.info("No icons to install")
+            return
+
         log.info("Installing icons")
-        for theme in os.listdir(self._relative('batis_info', 'icons')):
+        for theme in os.listdir(icon_dir):
             themedir = self._relative('batis_info', 'icons', theme)
             for sizestr in os.listdir(themedir):
                 m = re.match(r'(\d+)x\1', sizestr)

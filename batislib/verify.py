@@ -24,6 +24,8 @@ class UnpackedDirVerifier(object):
             problems.append('No batis_info subdirectory')
 
     def verify_metadata(self, problems):
+        pa = problems.append
+
         metadata_file = self._relative('batis_info', 'metadata.json')
         if not os.path.isfile(metadata_file):
             problems.append('No file batis_info/metadata.json')
@@ -31,7 +33,7 @@ class UnpackedDirVerifier(object):
 
         with open(metadata_file, 'r') as f:
             try:
-                metadata = json.load(f)
+                m = metadata = json.load(f)
             except ValueError as e:
                 problems.append('batis_info/metadata.json is not valid JSON: %s' % e)
                 return
@@ -71,7 +73,40 @@ class UnpackedDirVerifier(object):
             if not os.path.isfile(self._relative(cmd_info['target'])):
                 problems.append('Command target does not exist in package: %r' % cmd_info['target'])
 
-        # TODO: Verify contents of metadata
+        if 'system_packages' not in m:
+            pa('No system_packages field in metadata. '
+               'If the package really has no requirements, specify "system_packages": null')
+        elif m['system_packages'] is None:
+            pass
+        elif isinstance(m['system_packages'], list):
+            system_packages = m['system_packages']
+            if len(system_packages) == 0:
+                pa("system_packages should not be an empty list. "
+                   'If the package really has no requirements, specify "system_packages": null')
+
+            for spec in system_packages:
+                if not isinstance(spec, dict):
+                    pa("Package spec is not a dictionary: %r" % spec)
+
+                if ('package_manager' not in spec) and ('distro_name' not in spec):
+                    pa("Package spec needs at least one of package_manager, distro_name: %r"
+                        % spec)
+
+                if 'packages' not in spec:
+                    pa("Package spec needs packages field: %r" % spec)
+
+                elif not isinstance(spec['packages'], list):
+                    pa("Package spec packages field is not a list: %r" % spec['packages'])
+
+        else:
+            pa('system_packages is neither null nor a list: %r' % metadata['system_packages'])
+
+        if m.get('system_packages', False) is not None:
+            if 'dependencies_description' not in m:
+                pa('dependencies_description field missing')
+            elif not isinstance(m['dependencies_description'], str):
+                pa('dependencies_description is not a string: %r' %
+                    m['dependencies_description'])
 
     def verify_desktop_files(self, problems):
         desktop_dir = self._relative('batis_info', 'desktop')

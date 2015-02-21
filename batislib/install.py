@@ -58,7 +58,7 @@ class ApplicationInstaller(object):
 
         If this fails, returns a short string representing the reason.
         """
-        if 'system_packages' not in self.metadata:
+        if self.metadata['system_packages'] is None:
             return
 
         log.info('Installing system packages')

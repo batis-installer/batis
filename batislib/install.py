@@ -100,6 +100,9 @@ class ApplicationInstaller(object):
                                   os.path.basename(self.directory),
                                   command_info['target'])
             link = os.path.join(self.destination('commands'), command_info['name'])
+            if os.path.lexists(link):
+                log.warn("Replacing file at %s", link)
+                os.unlink(link)
             os.symlink(source, link)
 
     def install_icons(self):

@@ -7,4 +7,3 @@ NoDisplay=true
 Exec=/home/takluyver/Code/batis/batis gui-install-tarball %f
 Terminal=false
 MimeType=application/x-application-package-tar;
-Name[en_GB]=batis.desktop

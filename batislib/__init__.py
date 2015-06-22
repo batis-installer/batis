@@ -18,12 +18,8 @@ def main(argv=None):
         dir = unpack_app_tarball(argv[2])
         print('dir: {!r}'.format(dir))
 
-    elif subcmd == 'backend-install':
+    elif subcmd == 'install':
         from .install import main
-        main(argv[2:])
-
-    elif subcmd == 'gui-install-tarball':
-        from gui.app import main
         main(argv[2:])
 
     else:

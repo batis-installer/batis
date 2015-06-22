@@ -8,7 +8,7 @@ import shutil
 from subprocess import check_call, PIPE, STDOUT
 import errno
 
-from . import distro
+from . import distro, tarball
 
 log = logging.getLogger(__name__)
 
@@ -34,8 +34,17 @@ install_schemes = {
 
 
 class ApplicationInstaller(object):
-    def __init__(self, directory, scheme):
-        self.directory = directory
+    def __init__(self, path, scheme):
+        """Class with the main installation logic
+
+        :param path: Application tarball/directory to install
+        :param scheme: 'user' or 'system'
+        """
+        if os.path.isfile(path):
+            self.directory = tarball.unpack_app_tarball(path)
+        else:
+            self.directory = path
+        self.directory = self.directory.rstrip('/')
         self.scheme = install_schemes[scheme]
         with open(self._relative('batis_info', 'metadata.json')) as f:
             self.metadata = json.load(f)
@@ -169,13 +178,13 @@ def main(argv=None):
             help='Install systemwide, instead of for the user')
     ap.add_argument('--backend', action='store_true',
             help='Print steps to stdout to update the GUI installer')
-    ap.add_argument('directory', help='The unpacked application tarball')
+    ap.add_argument('path', help='The application tarball or directory to install')
     args = ap.parse_args(argv)
     if args.backend:
         log.addHandler(logging.NullHandler())
     else:
         logging.basicConfig(level=logging.INFO)
-    ai = ApplicationInstaller(args.directory, 'system' if args.system else 'user')
+    ai = ApplicationInstaller(args.path, 'system' if args.system else 'user')
     ai.install(args.backend)
 
 if __name__ == '__main__':

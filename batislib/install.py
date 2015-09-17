@@ -1,12 +1,12 @@
 import argparse
+import errno
 import glob
 import json
 import logging
 import os
 import re
 import shutil
-from subprocess import call, check_call, PIPE, STDOUT
-import errno
+from subprocess import call, PIPE, STDOUT
 
 pjoin = os.path.join
 basename = os.path.basename
@@ -35,6 +35,13 @@ install_schemes = {
     }
 }
 
+def ensure_dir_exists(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
 def get_install_scheme(name):
     XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME') or "~/.local/share"
     scheme = install_schemes[name]
@@ -46,45 +53,37 @@ class ApplicationInstaller(object):
         """Class with the main installation logic
 
         :param path: Application tarball/directory to install
-        :param scheme: 'user' or 'system'
+        :param scheme: dictionary of directories to install into
         """
         if os.path.isfile(path):
             self.directory = tarball.unpack_app_tarball(path)
         else:
             self.directory = path
         self.directory = self.directory.rstrip('/')
-        self.scheme = install_schemes[scheme]
+        self.scheme = scheme
         with open(self._relative('batis_info', 'metadata.json')) as f:
             self.metadata = json.load(f)
         
         self.installed_files = []
 
     def install_file(self, src, destination):
+        ensure_dir_exists(os.path.dirname(destination))
         if os.path.lexists(destination):
-            log.warn("Replacing file at %s", link)
-            os.unlink(link)
+            log.warn("Replacing file at %s", destination)
+            os.unlink(destination)
         shutil.copy(src, destination)
         self.installed_files.append({'path': destination, 'type': 'file'})
     
     def install_symlink(self, src, destination):
+        ensure_dir_exists(os.path.dirname(destination))
         if os.path.lexists(destination):
-            log.warn("Replacing file at %s", link)
-            os.unlink(link)
-        os.symlink(source, destination)
+            log.warn("Replacing file at %s", destination)
+            os.unlink(destination)
+        os.symlink(src, destination)
         self.installed_files.append({'path': destination, 'type': 'symlink'})
 
     def _relative(self, *path):
         return os.path.join(self.directory, *path)
-
-    def destination(self, component):
-        XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME') or "~/.local/share"
-        path = os.path.expanduser(self.scheme[component].format(XDG_DATA_HOME=XDG_DATA_HOME))
-        try:
-            os.makedirs(path, mode=0o755)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-        return path
 
     def install_system_packages(self, backend):
         """Install system packages specified in metadata.
@@ -120,19 +119,19 @@ class ApplicationInstaller(object):
 
     def copy_application(self):
         basename = os.path.basename(self.directory)
-        destination = os.path.join(self.destination('application'), basename)
+        destination = os.path.join(self.scheme['application'], basename)
         log.info('Copying application directory to %s', destination)
         if os.path.isdir(destination):
             shutil.rmtree(destination)
         shutil.copytree(self.directory, destination)
 
     def install_commands(self):
-        log.info("Symlinking commands to %s", self.destination('commands'))
+        log.info("Symlinking commands to %s", self.scheme['commands'])
         for command_info in self.metadata.get('commands', []):
-            source = os.path.join(self.destination('application'),
+            source = os.path.join(self.scheme['application'],
                                   os.path.basename(self.directory),
                                   command_info['target'])
-            link = os.path.join(self.destination('commands'), command_info['name'])
+            link = os.path.join(self.scheme['commands'], command_info['name'])
             self.install_symlink(source, link)
 
     def install_icons(self):
@@ -153,7 +152,7 @@ class ApplicationInstaller(object):
                     contextdir = os.path.join(sizedir, context)
                     for basename in os.listdir(contextdir):
                         src = pjoin(contextdir, basename)
-                        dest = pjoin(self.destination('icons'),
+                        dest = pjoin(self.scheme['icons'],
                                      theme, sizestr, context, basename)
                         self.install_file(src, dest)
 
@@ -162,26 +161,25 @@ class ApplicationInstaller(object):
     def install_mimetypes(self):
         source_files = glob.glob(self._relative('batis_info', 'mime', '*.xml')) 
         for file in source_files:
-            dest = pjoin(self.destination('mimetypes'), 'packages',
-                         basename(file))
+            dest = pjoin(self.scheme['mimetypes'], 'packages', basename(file))
             log.info("Installing mimetype package file %s", file)
             self.install_file(file, dest)
         
         if source_files:
-            call(['update-mime-database', self.destination('mimetypes')])
+            call(['update-mime-database', self.scheme['mimetypes']])
 
     def install_desktop_files(self):
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
         for file in files:
-            dest = pjoin(self.destination('desktop'), basename(file))
+            dest = pjoin(self.scheme['desktop'], basename(file))
             log.info("Installing desktop file: %r", file)
             self.install_file(file, dest)
         
         if files:
-            call(['update-desktop-database', self.destination('desktop')])
+            call(['update-desktop-database', self.scheme['desktop']])
     
     def write_manifest(self):
-        with open(pjoin(self.destination('application'),
+        with open(pjoin(self.scheme['application'],
                         os.path.basename(self.directory),
                         'batis_info', 'installed_files.json')) as f:
             json.dump(self.installed_files, f, indent=2)
@@ -221,7 +219,8 @@ def main(argv=None):
         log.addHandler(logging.NullHandler())
     else:
         logging.basicConfig(level=logging.INFO)
-    ai = ApplicationInstaller(args.path, 'system' if args.system else 'user')
+    scheme = get_install_scheme('system' if args.system else 'user')
+    ai = ApplicationInstaller(args.path, scheme)
     ai.install(args.backend)
 
 if __name__ == '__main__':

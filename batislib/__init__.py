@@ -21,6 +21,10 @@ def main(argv=None):
     elif subcmd == 'install':
         from .install import main
         main(argv[2:])
+    
+    elif subcmd == 'uninstall':
+        from .uninstall import main
+        main(argv[2:])
 
     else:
         print('Unknown subcommand: {!r}'.format(subcmd))

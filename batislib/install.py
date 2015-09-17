@@ -5,8 +5,11 @@ import logging
 import os
 import re
 import shutil
-from subprocess import check_call, PIPE, STDOUT
+from subprocess import call, check_call, PIPE, STDOUT
 import errno
+
+pjoin = os.path.join
+basename = os.path.basename
 
 from . import distro, tarball
 
@@ -21,17 +24,22 @@ install_schemes = {
         'commands': '/usr/local/bin',
         'desktop': '/usr/local/share/applications',
         'icons': '/usr/local/share/icons',
-        'mimetypes': '/usr/local/share/mime/packages',
+        'mimetypes': '/usr/local/share/mime',
     },
     'user': {
         'application': '{XDG_DATA_HOME}/installed-applications',
         'commands': '~/.local/bin',
         'desktop': '{XDG_DATA_HOME}/applications',
         'icons': '{XDG_DATA_HOME}/icons',
-        'mimetypes': '{XDG_DATA_HOME}/mime/packages',
+        'mimetypes': '{XDG_DATA_HOME}/mime',
     }
 }
 
+def get_install_scheme(name):
+    XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME') or "~/.local/share"
+    scheme = install_schemes[name]
+    return {k: os.path.expanduser(v.format(XDG_DATA_HOME=XDG_DATA_HOME))
+            for (k,v) in scheme.items()}
 
 class ApplicationInstaller(object):
     def __init__(self, path, scheme):
@@ -48,6 +56,22 @@ class ApplicationInstaller(object):
         self.scheme = install_schemes[scheme]
         with open(self._relative('batis_info', 'metadata.json')) as f:
             self.metadata = json.load(f)
+        
+        self.installed_files = []
+
+    def install_file(self, src, destination):
+        if os.path.lexists(destination):
+            log.warn("Replacing file at %s", link)
+            os.unlink(link)
+        shutil.copy(src, destination)
+        self.installed_files.append({'path': destination, 'type': 'file'})
+    
+    def install_symlink(self, src, destination):
+        if os.path.lexists(destination):
+            log.warn("Replacing file at %s", link)
+            os.unlink(link)
+        os.symlink(source, destination)
+        self.installed_files.append({'path': destination, 'type': 'symlink'})
 
     def _relative(self, *path):
         return os.path.join(self.directory, *path)
@@ -109,10 +133,7 @@ class ApplicationInstaller(object):
                                   os.path.basename(self.directory),
                                   command_info['target'])
             link = os.path.join(self.destination('commands'), command_info['name'])
-            if os.path.lexists(link):
-                log.warn("Replacing file at %s", link)
-                os.unlink(link)
-            os.symlink(source, link)
+            self.install_symlink(source, link)
 
     def install_icons(self):
         icon_dir = self._relative('batis_info', 'icons')
@@ -127,29 +148,43 @@ class ApplicationInstaller(object):
                 m = re.match(r'(\d+)x\1', sizestr)
                 if not m:
                     continue
-                size = m.group(1)
-                sizedir = os.path.join(themedir, sizestr)
+                sizedir = pjoin(themedir, sizestr)
                 for context in os.listdir(sizedir):
                     contextdir = os.path.join(sizedir, context)
                     for basename in os.listdir(contextdir):
-                        file = os.path.join(contextdir, basename)
-                        check_call(['xdg-icon-resource', 'install', '--noupdate',
-                              '--novendor', '--theme', theme, '--size', size,
-                              '--context', context, file])
+                        src = pjoin(contextdir, basename)
+                        dest = pjoin(self.destination('icons'),
+                                     theme, sizestr, context, basename)
+                        self.install_file(src, dest)
 
-            check_call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
+            call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
 
     def install_mimetypes(self):
-        for file in glob.glob(self._relative('batis_info', 'mime', '*.xml')):
+        source_files = glob.glob(self._relative('batis_info', 'mime', '*.xml')) 
+        for file in source_files:
+            dest = pjoin(self.destination('mimetypes'), 'packages',
+                         basename(file))
             log.info("Installing mimetype package file %s", file)
-            check_call(['xdg-mime', 'install', file])
+            self.install_file(file, dest)
+        
+        if source_files:
+            call(['update-mime-database', self.destination('mimetypes')])
 
     def install_desktop_files(self):
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
-        log.info("Installing desktop files: %r", files)
+        for file in files:
+            dest = pjoin(self.destination('desktop'), basename(file))
+            log.info("Installing desktop file: %r", file)
+            self.install_file(file, dest)
+        
         if files:
-            check_call(['desktop-file-install', '--rebuild-mime-info-cache',
-                        '--dir', self.destination('desktop')] + files)
+            call(['update-desktop-database', self.destination('desktop')])
+    
+    def write_manifest(self):
+        with open(pjoin(self.destination('application'),
+                        os.path.basename(self.directory),
+                        'batis_info', 'installed_files.json')) as f:
+            json.dump(self.installed_files, f, indent=2)
 
     def install(self, backend=False):
         def emit(msg):
@@ -170,6 +205,8 @@ class ApplicationInstaller(object):
         self.install_mimetypes()
         emit('step: install_desktop')
         self.install_desktop_files()
+        emit('step: write_manifest')
+        self.write_manifest()
         emit('finished')
 
 def main(argv=None):

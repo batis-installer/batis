@@ -1,5 +1,7 @@
 import sys
 
+__version__ = '0.1'
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv

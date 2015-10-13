@@ -181,7 +181,7 @@ class ApplicationInstaller(object):
     def write_manifest(self):
         with open(pjoin(self.scheme['application'],
                         os.path.basename(self.directory),
-                        'batis_info', 'installed_files.json')) as f:
+                        'batis_info', 'installed_files.json'), 'w') as f:
             json.dump(self.installed_files, f, indent=2)
 
     def install(self, backend=False):

@@ -8,6 +8,7 @@ def main(argv=None):
 
     if len(argv) < 2:
         print('No subcommand specified')
+        print('Available commands: verify, install, urlinstall, uninstall, unpack, pack')
         sys.exit(1)
 
     subcmd = argv[1]
@@ -26,6 +27,10 @@ def main(argv=None):
 
     elif subcmd == 'install':
         from .install import main
+        main(argv[2:])
+    
+    elif subcmd == 'urlinstall':
+        from .urlinstall import main
         main(argv[2:])
     
     elif subcmd == 'uninstall':

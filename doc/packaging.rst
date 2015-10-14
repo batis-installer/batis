@@ -41,21 +41,23 @@ Packaging an application using Batis
      Category will typically be either 'apps' or 'mimetype'.
      (`Icon theme spec <http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html>`_)
 
-3. Copy in installer shim for users who don't have Batis. (Todo: details)
-4. Make the directory into a tarball, with a ``.app.tar.gz`` extension. At the
-   command line, you can do so like this::
-   
-       tar -cvzf foo.app.tar.gz app_directory
+3. Use ``batis verify`` to check that all the necessary information is in
+   place::
 
-5. Check the tarball by running::
-
-       batis verify foo.app.tar.gz
+       batis verify path/to/app_directory
 
    Fix any problems that this reports.
 
+4. Pack the directory into a tarball:
+
+       batis pack path/to/app_directory -n myapp -o myapp-0.1.app.tgz
+
+   This makes a gzipped tarball of the directory you're using, and adds an
+   ``install.sh`` script, along with the necessary Batis files, so that users
+   without Batis can easily install your application.
 
 You can now distribute your `.app.tar.gz` file. Users with Batis will be prompted
-to install it; users without can unpack the tarball and run ``./install``.
+to install it; users without can unpack the tarball and run ``./install.sh``.
 
 Dependencies
 ------------

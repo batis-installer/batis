@@ -19,6 +19,10 @@ def main(argv=None):
         from .tarball import unpack_app_tarball
         dir = unpack_app_tarball(argv[2])
         print('dir: {!r}'.format(dir))
+    
+    elif subcmd == 'pack':
+        from .tarball import pack_main
+        pack_main(argv[2:])
 
     elif subcmd == 'install':
         from .install import main

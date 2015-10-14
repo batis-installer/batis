@@ -1,7 +1,13 @@
+import argparse
+import logging
 import os
+import sys
 import tarfile
 from tempfile import mkdtemp
 
+pjoin = os.path.join
+
+log = logging.getLogger(__name__)
 
 def unpack_app_tarball(path):
     """Unpack the .app.tar.gz file to a temporary directory.
@@ -27,3 +33,56 @@ def unpack_app_tarball(path):
         return os.path.join(target, contents[0])
 
     raise ValueError("Could not find batis_info directory in tarball")
+
+def pack_tarball(directory, output_file=None, name=None, install_script=True):
+    directory = os.path.abspath(directory).rstrip(os.sep)
+    if name is None:
+        name = os.path.basename(directory)
+    
+    if output_file is None:
+        td = mkdtemp()
+        output_file = pjoin(td, name+'.app.tar.gz')
+    elif os.path.exists(output_file):
+        os.unlink(output_file)
+    
+    tf = tarfile.open(output_file, mode='w:gz')
+    log.info('Creating tarball %s', output_file)
+    tf.add(directory, arcname=name)
+    
+    if install_script:
+        log.info('Adding install.sh script and Batis files')
+        batislibdir = os.path.dirname(__file__)
+        tf.add(pjoin(batislibdir, 'install_resources', 'install.sh'),
+               arcname=name+'/install.sh')
+        tf.add(pjoin(batislibdir, 'install_resources', 'selfinstall.py'),
+               arcname=name+'/batis_info/selfinstall.py')
+        tf.add(batislibdir, arcname=name+'/batis_info/batislib')
+    
+    tf.close()
+    return output_file
+
+def pack_main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-n', '--name',
+        help="The application name to use. Uses the directory name if not specified")
+    ap.add_argument('-o', '--output-file',
+        help="The tarball will be written to this location")
+    ap.add_argument('--no-install-script',
+        help="Don't include a ./install.sh script inside the tarball")
+    ap.add_argument('directory', help="The directory to package")
+    args = ap.parse_args(argv)
+    
+    logging.basicConfig(level=logging.INFO)
+    
+    from .verify import UnpackedDirVerifier
+    problems = UnpackedDirVerifier(args.directory).verify()
+    if problems:
+        for problem in problems:
+            print(problem)
+
+        print()
+        print(len(problems), "problems found in", args.path)
+        sys.exit(1)
+    
+    pack_tarball(args.directory, args.output_file, args.name,
+                 install_script=(not args.no_install_script))

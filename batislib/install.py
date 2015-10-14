@@ -118,7 +118,7 @@ class ApplicationInstaller(object):
             return 'install failed'
 
     def copy_application(self):
-        basename = os.path.basename(self.directory)
+        basename = os.path.basename(os.path.abspath(self.directory))
         destination = os.path.join(self.scheme['application'], basename)
         log.info('Copying application directory to %s', destination)
         if os.path.isdir(destination):

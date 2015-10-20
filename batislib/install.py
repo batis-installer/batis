@@ -208,7 +208,7 @@ class ApplicationInstaller(object):
         emit('finished')
 
 def main(argv=None):
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog='batis installtar')
     ap.add_argument('--system', action='store_true',
             help='Install systemwide, instead of for the user')
     ap.add_argument('--backend', action='store_true',

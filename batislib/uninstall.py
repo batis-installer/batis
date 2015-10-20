@@ -74,7 +74,7 @@ class ApplicationUninstaller(object):
         self.remove_appdir()
 
 def main(argv=None):
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog='batis uninstall')
     ap.add_argument('name', help='The application name to uninstall')
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO)

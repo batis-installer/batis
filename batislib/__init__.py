@@ -1,6 +1,27 @@
+from importlib import import_module
 import sys
 
 __version__ = '0.1'
+
+subcommands = [
+    # User focussed
+    ('install', '.urlinstall:main',
+         'Download and install an application from a URL'),
+    ('installtar', '.install:main',
+         'Install a tarball that was already downloaded'),
+    ('uninstall', '.uninstall:main',
+         'Remove an installed application'),
+    # Developer focussed
+    ('verify', '.verify:main',
+         'Check an application directory or tarball for problems'),
+    ('pack', '.tarball:pack_main',
+         'Pack an application directory into a tarball'),
+]
+
+def _load(entry_point):
+    modname, func = entry_point.split(':')
+    mod = import_module(modname, 'batislib')
+    return getattr(mod, func)
 
 def main(argv=None):
     if argv is None:
@@ -8,35 +29,23 @@ def main(argv=None):
 
     if len(argv) < 2:
         print('No subcommand specified')
-        print('Available commands: verify, install, urlinstall, uninstall, unpack, pack')
-        sys.exit(1)
+        print('Available subcommands:', *(s[0] for s in subcommands))
+        return 2
 
     subcmd = argv[1]
-    if subcmd == 'verify':
-        from .verify import main
-        main(argv[2:])
 
-    elif subcmd == 'unpack':
-        from .tarball import unpack_app_tarball
-        dir = unpack_app_tarball(argv[2])
-        print('dir: {!r}'.format(dir))
+    if subcmd in {'--help', '-h'}:
+        print('Batis - install and distribute desktop applications')
+        print('Subcommands:')
+        for name, ep, descr in subcommands:
+            print('  {:<10} - {}'.format(name, descr))
+        return 0
     
-    elif subcmd == 'pack':
-        from .tarball import pack_main
-        pack_main(argv[2:])
+    for name, ep, descr in subcommands:
+        if subcmd == name:
+            sub_main = _load(ep)
+            return sub_main(argv[2:])
 
-    elif subcmd == 'install':
-        from .install import main
-        main(argv[2:])
-    
-    elif subcmd == 'urlinstall':
-        from .urlinstall import main
-        main(argv[2:])
-    
-    elif subcmd == 'uninstall':
-        from .uninstall import main
-        main(argv[2:])
-
-    else:
-        print('Unknown subcommand: {!r}'.format(subcmd))
-        sys.exit(1)
+    print('Unknown subcommand: {!r}'.format(subcmd))
+    print('Available subcommands:', *(s[0] for s in subcommands))
+    return 2

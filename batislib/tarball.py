@@ -62,7 +62,7 @@ def pack_tarball(directory, output_file=None, name=None, install_script=True):
     return output_file
 
 def pack_main(argv=None):
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog='batis pack')
     ap.add_argument('-n', '--name',
         help="The application name to use. Uses the directory name if not specified")
     ap.add_argument('-o', '--output-file',

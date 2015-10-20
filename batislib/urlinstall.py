@@ -72,7 +72,7 @@ def install(url, scheme, backend=False):
         rmtree(td)
 
 def main(argv=None):
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog='batis install')
     ap.add_argument('--system', action='store_true',
             help='Install systemwide, instead of for the user')
     ap.add_argument('url', help='The URL from which to install')

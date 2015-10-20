@@ -24,13 +24,20 @@ Packaging an application using Batis
      - ``commands`` - list of objects, each with 'name' and 'target' keys.
        ``target``, a path relative to the root of your application directory,
        will be symlinked as ``name`` to a location on :envvar:`PATH`.
+     - ``system_packages`` - a specification of distro packages that the user
+       must have installed. See :ref:`dependencies` for details. May be ``null``
+       if no system packages are required.
+     - ``dependencies_description`` - a string listing the same distro
+       packages in human-readable form. This will be shown to the user if Batis
+       can't automatically install the dependencies. E.g. for a PyQt application,
+       this could be ``"Python 3, PyQt5"``.
 
    * :file:`desktop/*.desktop` - Zero to many desktop entry files
-     (`spec <http://standards.freedesktop.org/desktop-entry-spec/latest/>`_).
+     (`spec <http://standards.freedesktop.org/desktop-entry-spec/latest/>`__).
      These can add your application to desktop menus or launchers, and associate
      it with given mime types.
    * :file:`mime/*.xml` - Zero to many mime database XML source files
-     (`spec <http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html#idm140625833214912>`_,
+     (`spec <http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html#idm140625833214912>`__,
      `tutorial <http://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/>`_).
      These can define new file types for your application.
    * :file:`icons/{theme}/{size}x{size}/{category}/{name}.png` - icons for your
@@ -48,7 +55,7 @@ Packaging an application using Batis
 
    Fix any problems that this reports.
 
-4. Pack the directory into a tarball:
+4. Pack the directory into a tarball::
 
        batis pack path/to/app_directory -n myapp -o myapp-0.1.app.tgz
 
@@ -58,6 +65,8 @@ Packaging an application using Batis
 
 You can now distribute your `.app.tar.gz` file. Users with Batis will be prompted
 to install it; users without can unpack the tarball and run ``./install.sh``.
+
+.. _dependencies:
 
 Dependencies
 ------------
@@ -74,3 +83,101 @@ that they should be installed by a system package manager. Each has advantages:
 
 In general, I recommend that you specify only large, stable dependencies - such
 as Python, Java or Qt - for external installation.
+
+Different distributions use different naming schemes for packages, so the
+``system_packages`` field in the metadata is a list of possible specifications,
+allowing Batis to choose one suited to the user's distribution. For instance::
+
+    [
+        {
+            "package_manager": "apt-get",
+            "packages": ["python3", "python3-pyqt5", "python3-pyqt5.qtsvg"]
+        },
+        {
+            "package_manager": "yum",
+            "packages": ["python3", "python3-qt5"]
+        }
+    ]
+
+Each specification may have either a ``package_manager`` field or a
+``distribution`` field. Use ``package_manager`` where possible, because it's
+less specific - e.g. ``"package_manager": "apt-get"`` will work on Debian,
+Ubuntu, Linux Mint, and many other derivatives. Batis recognises these
+package managers::
+
+    apt-get, yum, zypper, urpmi, pacman, sbopkg, equo, emerge
+
+If you need to do something different for a specific distribution, run
+``lsb_release -i`` to find the name to use. Put it before the more general
+specification in the list; Batis will use the first one that matches when
+installing.
+
+The user will be prompted for their password for sudo access to install the
+necessary system packages.
+
+If no specification matches, or installing the system packages fails, Batis
+will ask the user to ensure the dependencies are installed. It uses the
+``dependencies_description`` field of the metadata for this.
+
+If your package doesn't require any system packages, put ``system_packages: null``
+in the metadata.
+
+.. _build_index:
+
+The builds index
+----------------
+
+When users try to install an application using a URL, Batis looks for an index
+file called ``batis_index.json``. For example, to let users
+``batis install https://example.com/``, you would put the index at::
+
+    https://example.com/batis_index.json
+
+The index file must be available over HTTPS. Hosting your website on
+`Github Pages <https://pages.github.com/>`__ is one easy and free way to support
+HTTPS.
+
+The index should be JSON, looking like this::
+
+    {
+      "name": "My App",
+      "builds": [
+        {
+          "url": "https://example.com/downloads/myapp_0.1_linux_64bit.app.tar.gz",
+          "sha512": "48157035840[...]bd4a14146b9",
+          "version": "0.1",
+          "kernel": "Linux",
+          "arch": "x86_64"
+        },
+        ...
+      ]
+    }
+
+Batis will select an appropriate build for the user's system based on the
+``kernel`` and ``arch`` fields. These should match the results of ``uname -s``
+and ``uname -m`` respectively, and are not case sensitive. As a special case,
+``"arch": "x86"`` will match ``iN86`` with any digit for N.
+
+If your application doesn't need separate builds for different kernels or
+architectures—for instance, if it only contains Python code with no C extensions
+—you can set these fields to "any", or omit them entirely.
+
+If there are multiple suitable builds, Batis will take the one with the highest
+version number. The version number should contain one or more numeric parts,
+separated by non-numeric characters such as ``.``. Batis ignores any non-numeric
+parts.
+
+The preferred build will be downloaded from the URL given. HTTP URLs are allowed
+here, but they must have a hash.
+
+The ``sha512`` field is recommended if you specify an https URL, and mandatory
+for http. If provided, it must match the SHA-512 hash of the tarball available
+for download.
+
+.. topic:: Future extensions
+
+   Future versions of Batis may use extra fields in the index to download
+   incremental upgrades, smaller packages containing just the differences
+   between two versions of the application.
+   The index could also contain information for downloading tarballs using
+   peer-to-peer mechanisms like IPFS or BitTorrent.

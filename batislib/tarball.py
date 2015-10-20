@@ -52,9 +52,9 @@ def pack_tarball(directory, output_file=None, name=None, install_script=True):
     if install_script:
         log.info('Adding install.sh script and Batis files')
         batislibdir = os.path.dirname(__file__)
-        tf.add(pjoin(batislibdir, 'install_resources', 'install.sh'),
-               arcname=name+'/install.sh')
-        tf.add(pjoin(batislibdir, 'install_resources', 'selfinstall.py'),
+        install_res = pjoin(os.path.dirname(batislibdir), 'install_resources')
+        tf.add(pjoin(install_res, 'install.sh'), arcname=name+'/install.sh')
+        tf.add(pjoin(install_res, 'selfinstall.py'),
                arcname=name+'/batis_info/selfinstall.py')
         tf.add(batislibdir, arcname=name+'/batis_info/batislib')
     

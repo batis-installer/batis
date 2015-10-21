@@ -16,6 +16,8 @@ subcommands = [
          'Check an application directory or tarball for problems'),
     ('pack', '.tarball:pack_main',
          'Pack an application directory into a tarball'),
+    ('verify-index', '.verify_index:main',
+         'Check a batis_index.json file for problems'),
 ]
 
 def _load(entry_point):
@@ -38,7 +40,7 @@ def main(argv=None):
         print('Batis - install and distribute desktop applications')
         print('Subcommands:')
         for name, ep, descr in subcommands:
-            print('  {:<10} - {}'.format(name, descr))
+            print('  {:<12} - {}'.format(name, descr))
         return 0
     
     for name, ep, descr in subcommands:

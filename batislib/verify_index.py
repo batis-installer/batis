@@ -46,6 +46,8 @@ class IndexVerifier:
             pa("'builds' field should be a JSON array, not {}"
                 .format(type(builds)))
             return
+        elif builds == []:
+            pa("'builds' is an empty list")
         
         for b in builds:
             self.verify_build_json(b, problems)
@@ -85,7 +87,7 @@ class IndexVerifier:
         
         for field in ('kernel', 'arch'):
             if field in b:
-                if isinstance(b[field], str):
+                if not isinstance(b[field], str):
                     pa("Build '{}' field should be a string, not {}"
                         .format(field, type(b[field])))
                 elif b[field] == '':

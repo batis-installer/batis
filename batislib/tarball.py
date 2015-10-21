@@ -56,7 +56,12 @@ def pack_tarball(directory, output_file=None, name=None, install_script=True):
         tf.add(pjoin(install_res, 'install.sh'), arcname=name+'/install.sh')
         tf.add(pjoin(install_res, 'selfinstall.py'),
                arcname=name+'/batis_info/selfinstall.py')
-        tf.add(batislibdir, arcname=name+'/batis_info/batislib')
+
+        def filter_exclude_pycache(tarinfo):
+            if '__pycache__' not in tarinfo.name:
+                return tarinfo
+        tf.add(batislibdir, arcname=name+'/batis_info/batislib',
+               filter=filter_exclude_pycache)
     
     tf.close()
     return output_file

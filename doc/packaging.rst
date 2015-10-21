@@ -3,9 +3,9 @@ Packaging an application using Batis
 
 .. note::
 
-   I hope that, as Batis becomes more widely adopted, there will be tools to
-   automate this process for certain kinds of applications. For now, this
-   describes building a package manually.
+   This describes how to work directly with Batis to distribute an application.
+   I hope that higher level tools will offer simpler ways to do this in the
+   future.
 
 1. Prepare a directory containing your built application, so that it can run
    regardless of where the directory is located (i.e. everything inside the
@@ -17,13 +17,16 @@ Packaging an application using Batis
      application, including:
 
      - ``name`` - the human readable name of your application.
-     - ``byline`` - a very brief description of your application, which will be
-       displayed below the name in the installer.
+     - ``byline`` - a very brief description of your application, which may be
+       displayed by installers.
      - ``icon`` - the relative path to an icon file within your application
-       directory. This will be displayed at 48x48 pixels in the installer.
+       directory. This may be displayed by graphical installers.
      - ``commands`` - list of objects, each with 'name' and 'target' keys.
        ``target``, a path relative to the root of your application directory,
-       will be symlinked as ``name`` to a location on :envvar:`PATH`.
+       will be symlinked as ``name`` to a location on :envvar:`PATH`. E.g.::
+       
+           "commands": [{"target": "bin/launch.sh", "name": "myapp"}]
+       
      - ``system_packages`` - a specification of distro packages that the user
        must have installed. See :ref:`dependencies` for details. May be ``null``
        if no system packages are required.
@@ -61,10 +64,18 @@ Packaging an application using Batis
 
    This makes a gzipped tarball of the directory you're using, and adds an
    ``install.sh`` script, along with the necessary Batis files, so that users
-   without Batis can easily install your application.
+   without Batis can easily install your application. Upload the tarball
+   somewhere publicly accessible.
 
-You can now distribute your `.app.tar.gz` file. Users with Batis will be prompted
-to install it; users without can unpack the tarball and run ``./install.sh``.
+5. Prepare a :ref:`build index file <build_index>`, and add it to your project's
+   website as ``/batis_index.json``.
+
+You can now invite users with Batis to install your application by running::
+
+    batis install example.com/myapp/
+
+For users without Batis installed, provide links directly to the tarballs, and
+instructions to download, un-tar and run ``./install.sh``.
 
 .. _dependencies:
 
@@ -99,9 +110,9 @@ allowing Batis to choose one suited to the user's distribution. For instance::
         }
     ]
 
-Each specification may have either a ``package_manager`` field or a
+Each specification has either a ``package_manager`` field or a
 ``distribution`` field. Use ``package_manager`` where possible, because it's
-less specific - e.g. ``"package_manager": "apt-get"`` will work on Debian,
+less specific: ``"package_manager": "apt-get"`` will work on Debian,
 Ubuntu, Linux Mint, and many other derivatives. Batis recognises these
 package managers::
 
@@ -127,7 +138,7 @@ in the metadata.
 The builds index
 ----------------
 
-When users try to install an application using a URL, Batis looks for an index
+When users install an application using a URL, Batis looks for an index
 file called ``batis_index.json``. For example, to let users
 ``batis install https://example.com/``, you would put the index at::
 
@@ -153,10 +164,17 @@ The index should be JSON, looking like this::
       ]
     }
 
+.. topic:: Checking your index
+
+   When you create or update your index, check that it has the necessary
+   information by running::
+   
+       batis verify-index <path_or_url>
+
 Batis will select an appropriate build for the user's system based on the
 ``kernel`` and ``arch`` fields. These should match the results of ``uname -s``
 and ``uname -m`` respectively, and are not case sensitive. As a special case,
-``"arch": "x86"`` will match ``iN86`` with any digit for N.
+``"arch": "x86"`` will match ``i386``, ``i686``, and any ``i<N>86``.
 
 If your application doesn't need separate builds for different kernels or
 architectures—for instance, if it only contains Python code with no C extensions

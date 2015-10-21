@@ -1,4 +1,5 @@
 import argparse
+import errno
 import json
 import logging
 import os
@@ -41,7 +42,14 @@ class ApplicationUninstaller(object):
         for info in manifest:
             # TODO: check that files have not been modified since installation?
             path = info['path']
-            os.unlink(info['path'])
+            try:
+                os.unlink(path)
+            except OSError as e:
+                if e.errno == errno.ENOENT:
+                    continue
+                else:
+                    raise
+
             if path.startswith(self.scheme['desktop']):
                 self.desktop_files = True
             elif path.startswith(self.scheme['mimetypes']):

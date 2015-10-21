@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import hashlib
 import os.path
 import requests
 from shutil import rmtree
@@ -18,7 +19,7 @@ class NullProgress(object):
     def finish(self):
         pass
 
-def download(url, target, progress=None):
+def download(url, target, progress=None, hashobj=None):
     """Download a file using requests.
     
     This is like urllib.request.urlretrieve, but requests validates SSL
@@ -40,9 +41,11 @@ def download(url, target, progress=None):
     recvd = 0
 
     with open(target, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=16384): 
+        for chunk in r.iter_content(chunk_size=8192):
             if chunk:
                 f.write(chunk)
+                if hashobj is not None:
+                    hashobj.update(chunk)
                 recvd += len(chunk)
                 try:
                     progress.update(recvd)
@@ -52,24 +55,46 @@ def download(url, target, progress=None):
 
     progress.finish()
 
-def install(url, scheme, backend=False):
+def prepare_index_url(url):
+    if '//' not in url:
+        url = 'https://' + url
+    elif url.startswith('http://'):
+        url = 'https' + url[4:]
+    
     if not url.endswith('.json'):
         url = url.rstrip('/') + '/batis_index.json'
+    return url
+
+def install(url, scheme, backend=False):
+    url = prepare_index_url(url)
     r = requests.get(url)
     candidates = r.json()['builds']
     
     build = select_build.select_latest(select_build.filter_eligible(candidates))
+    
+    if 'sha512' in build:
+        hashobj = hashlib.sha512()
+    elif not build['url'].startswith('https:'):
+        raise KeyError("'sha512' field is required for HTTP downloads")
+    else:
+        hashobj = None
 
     td = mkdtemp()
     tarball = os.path.join(td, 'app.tar.gz')
     
     from progressbar import DataTransferBar
     try:
-        download(build['url'], tarball, progress=DataTransferBar())
+        download(build['url'], tarball, progress=DataTransferBar(),
+                 hashobj=hashobj)
+        if hashobj is not None:
+            if hashobj.hexdigest() != build['sha512']:
+                # TODO: Automatic retrying?
+                raise ValueError("Download was corrupted - hash didn't match")
         ai = ApplicationInstaller(tarball, scheme)
         ai.install(backend=backend)
     finally:
         rmtree(td)
+
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog='batis install')

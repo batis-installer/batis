@@ -9,11 +9,6 @@ from .install import get_install_scheme
 
 pjoin = os.path.join
 
-scheme_search_order = [
-   'user',
-   'system',
-]
-
 class UnknownApplication(ValueError):
     def __init__(self, name):
         self.name = name
@@ -21,22 +16,22 @@ class UnknownApplication(ValueError):
     def __str__(self):
         return 'Application {!r} was not found.'.format(self.name)
 
+def find_installed_application(name, scheme_search_order=('user', 'system')):
+    for schemename in scheme_search_order:
+        scheme = get_install_scheme(schemename)
+        appdir = pjoin(scheme['application'], name)
+        if os.path.isdir(appdir):
+            return appdir, scheme
+
+    raise UnknownApplication(name)
+
 class ApplicationUninstaller(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, appdir, scheme):
+        self.appdir = appdir
+        self.scheme = scheme
         self.desktop_files = False
         self.mime_files = False
         self.icon_themes = set()
-
-        for schemename in scheme_search_order:
-            scheme = get_install_scheme(schemename)
-            appdir = pjoin(scheme['application'], name)
-            if os.path.isdir(appdir):
-                self.appdir = appdir
-                self.scheme = scheme
-                break
-        else:
-            raise UnknownApplication(name)
     
     def remove_files(self):
         """Remove files copied or linked outside the main application directory"""
@@ -78,4 +73,5 @@ def main(argv=None):
     ap.add_argument('name', help='The application name to uninstall')
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO)
-    ApplicationUninstaller(args.name).run()
+    appdir, scheme = find_installed_application(args.name)
+    ApplicationUninstaller(appdir, scheme).run()

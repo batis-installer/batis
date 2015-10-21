@@ -120,9 +120,17 @@ class ApplicationInstaller(object):
     def copy_application(self):
         basename = os.path.basename(os.path.abspath(self.directory))
         destination = os.path.join(self.scheme['application'], basename)
-        log.info('Copying application directory to %s', destination)
         if os.path.isdir(destination):
-            shutil.rmtree(destination)
+            if os.path.isfile(pjoin(destination, 'batis_info',
+                                    'installed_files.json')):
+                log.info('Removing previously installed application at %s',
+                         destination)
+                from .uninstall import ApplicationUninstaller
+                ApplicationUninstaller(destination, self.scheme).run()
+            else:
+                log.warn('Removing existing directory %s', destination)
+                shutil.rmtree(destination)
+        log.info('Copying application directory to %s', destination)
         shutil.copytree(self.directory, destination)
 
     def install_commands(self):

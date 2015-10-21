@@ -1,3 +1,4 @@
+import json
 import os
 from os.path import dirname, join as pjoin
 import testpath
@@ -31,3 +32,19 @@ class InstallerTests(TestCase):
         self.installer.install_commands()
         testpath.assert_islink(pjoin(self.td, 'bin', 'launch-sampleapp'),
                                pjoin(d, 'run.sh'))
+
+    def test_uninstall_previous(self):
+        d = pjoin(self.td, 'installed-applications', 'sampleapp')
+        foobar_script = pjoin(self.td, 'bin', 'foobar')
+        
+        # Mock up an existing application installed in the destination
+        os.makedirs(pjoin(d, 'batis_info'))
+        os.makedirs(pjoin(self.td, 'bin'))
+        with open(foobar_script, 'w'):
+            pass  # Just opening to create it
+        with open(pjoin(d, 'batis_info', 'installed_files.json'), 'w') as f:
+            json.dump([{'path': foobar_script, 'type': 'file'}], f)
+        
+        testpath.assert_path_exists(foobar_script)
+        self.installer.copy_application()
+        testpath.assert_not_path_exists(foobar_script)

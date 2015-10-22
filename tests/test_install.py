@@ -33,6 +33,25 @@ class InstallerTests(TestCase):
         testpath.assert_islink(pjoin(self.td, 'bin', 'launch-sampleapp'),
                                pjoin(d, 'run.sh'))
 
+    def test_install_desktop_files(self):
+        self.installer.install_desktop_files()
+        d = pjoin(self.td, 'applications')
+        install_dir = pjoin(self.td, 'installed-applications', 'sampleapp')
+        testpath.assert_isfile(pjoin(d, 'fooview.desktop'))
+        testpath.assert_isfile(pjoin(d, 'script_in_install_dir.desktop'))
+
+        with open(pjoin(d, 'script_in_install_dir.desktop')) as f:
+            checked_lines = 0
+            for line in f:
+                if line.startswith('Exec='):
+                    assert pjoin(install_dir, 'bin', 'fooview') in line
+                    checked_lines += 1
+                elif line.startswith('Icon='):
+                    assert pjoin(install_dir, 'fooview.png') in line
+                    checked_lines += 1
+
+        assert checked_lines == 2
+
     def test_uninstall_previous(self):
         d = pjoin(self.td, 'installed-applications', 'sampleapp')
         foobar_script = pjoin(self.td, 'bin', 'foobar')

@@ -177,11 +177,19 @@ class ApplicationInstaller(object):
             call(['update-mime-database', self.scheme['mimetypes']])
 
     def install_desktop_files(self):
+        install_dir = pjoin(self.scheme['application'],
+                            os.path.basename(self.directory))
         files = glob.glob(self._relative('batis_info', 'desktop', '*.desktop'))
         for file in files:
             dest = pjoin(self.scheme['desktop'], basename(file))
             log.info("Installing desktop file: %r", file)
             self.install_file(file, dest)
+
+            # Rewrite any instances of {{INSTALL_DIR}}
+            with open(dest) as f:
+                contents = f.read()
+            with open(dest, 'w') as f:
+                f.write(contents.replace('{{INSTALL_DIR}}', install_dir))
         
         if files:
             call(['update-desktop-database', self.scheme['desktop']])

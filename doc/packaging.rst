@@ -38,7 +38,11 @@ Packaging an application using Batis
    * :file:`desktop/*.desktop` - Zero to many desktop entry files
      (`spec <http://standards.freedesktop.org/desktop-entry-spec/latest/>`__).
      These can add your application to desktop menus or launchers, and associate
-     it with given mime types.
+     it with given mime types. You can use ``{{INSTALL_DIR}}`` inside these to
+     refer to your application's directory::
+     
+         Exec="{{INSTALL_DIR}}/bin/foo" %F
+     
    * :file:`mime/*.xml` - Zero to many mime database XML source files
      (`spec <http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html#idm140625833214912>`__,
      `tutorial <http://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/>`_).

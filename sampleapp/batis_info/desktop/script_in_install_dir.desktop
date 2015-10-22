@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Foo Viewer
+Comment=The best viewer for Foo objects available!
+Exec="{{INSTALL_DIR}}/bin/fooview" %F
+Icon={{INSTALL_DIR}}/fooview.png
+MimeType=image/x-foo;
+Actions=Gallery;Create;

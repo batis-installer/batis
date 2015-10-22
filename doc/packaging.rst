@@ -183,7 +183,7 @@ architectures—for instance, if it only contains Python code with no C extensio
 If there are multiple suitable builds, Batis will take the one with the highest
 version number. The version number should contain one or more numeric parts,
 separated by non-numeric characters such as ``.``. Batis ignores any non-numeric
-parts.
+parts. You can use negative numbers for pre-releases (e.g. ``2.0.-1.3``).
 
 The preferred build will be downloaded from the URL given. HTTP URLs are allowed
 here, but they must have a hash.

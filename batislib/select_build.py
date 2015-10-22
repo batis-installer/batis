@@ -38,8 +38,14 @@ class NoEligibleBuild(Exception):
                     .format(self.kernel, self.arch)
 
 def later_version(subject, compare_to):
-    v1 = [int(p) for p in re.findall(r'\d+', subject)]
-    v2 = [int(p) for p in re.findall(r'\d+', compare_to)]
+    v1 = [int(p) for p in re.findall(r'-?\d+', subject)]
+    v2 = [int(p) for p in re.findall(r'-?\d+', compare_to)]
+    l1, l2 = len(v1), len(v2)
+    # Pad with zeros to make them the same length
+    if l1 > l2:
+        v2 += [0] * (l1 - l2)
+    elif l2 > l1:
+        v1 += [0] * (l2 - l1)
     return v1 > v2
 
 def select_latest(candidates):

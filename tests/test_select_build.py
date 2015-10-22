@@ -51,5 +51,7 @@ def test_later_version():
     later_version = select_build.later_version
     assert later_version('2.0', '1.9')
     assert later_version('1.0.1', '1')
+    assert later_version('1.0', '1.-1')
+    assert later_version('1.0', '1.0.-1')
     assert not later_version('1.2', '1.2')
     assert not later_version('1.2.8', '1.5.3')

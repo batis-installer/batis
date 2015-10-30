@@ -3,7 +3,5 @@
  "icon": "batis_info/icons/hicolor/48x48/apps/tango-calculator.png",
  "commands": [
    {"name": "launch-sampleapp", "target": "run.sh"}
- ],
- "system_packages": null,
- "dependencies_description": ""
+ ]
 }

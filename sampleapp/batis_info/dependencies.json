@@ -1,0 +1,6 @@
+{
+  "system_packages": [
+    {"package_manager": "apt-get", "packages": ["python3", "python3-pyqt4"]}
+  ],
+  "description": "Python 3, PyQt4"
+}

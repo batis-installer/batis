@@ -27,10 +27,13 @@ Packaging an application using Batis
        
            "commands": [{"target": "bin/launch.sh", "name": "myapp"}]
        
+   * :file:`dependencies.json` - optional, a JSON object with details about
+     external packages that need to be installed for you application. See
+     :ref:`dependencies` for more details.
+     
      - ``system_packages`` - a specification of distro packages that the user
-       must have installed. See :ref:`dependencies` for details. May be ``null``
-       if no system packages are required.
-     - ``dependencies_description`` - a string listing the same distro
+       must have installed. See :ref:`dependencies` for details.
+     - ``description`` - a string listing the same distro
        packages in human-readable form. This will be shown to the user if Batis
        can't automatically install the dependencies. E.g. for a PyQt application,
        this could be ``"Python 3, PyQt5"``.
@@ -100,7 +103,7 @@ In general, I recommend that you specify only large, stable dependencies - such
 as Python, Java or Qt - for external installation.
 
 Different distributions use different naming schemes for packages, so the
-``system_packages`` field in the metadata is a list of possible specifications,
+``system_packages`` field in dependencies.json is a list of possible specifications,
 allowing Batis to choose one suited to the user's distribution. For instance::
 
     [
@@ -132,10 +135,10 @@ necessary system packages.
 
 If no specification matches, or installing the system packages fails, Batis
 will ask the user to ensure the dependencies are installed. It uses the
-``dependencies_description`` field of the metadata for this.
+``description`` field in ``dependencies.json`` for this.
 
-If your package doesn't require any system packages, put ``system_packages: null``
-in the metadata.
+If your package doesn't require any system packages, you can leave the
+``dependencies.json`` file out.
 
 .. _build_index:
 

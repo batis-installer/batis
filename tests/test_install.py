@@ -25,6 +25,11 @@ class InstallerTests(TestCase):
         testpath.assert_isdir(d)
         testpath.assert_isfile(pjoin(d, 'run.sh'))
 
+    def test_install_system_packages(self):
+        with testpath.assert_calls('sudo', ['apt-get', '--yes', 'install',
+                                            'python3', 'python3-pyqt4']):
+            self.installer.install_system_packages(backend=False)
+
     def test_install_commands(self):
         self.installer.copy_application()
         d = pjoin(self.td, 'installed-applications', 'sampleapp')

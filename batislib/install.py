@@ -90,16 +90,20 @@ class ApplicationInstaller(object):
 
         If this fails, returns a short string representing the reason.
         """
-        if self.metadata['system_packages'] is None:
-            return
+        deps_file = self._relative('batis_info', 'dependencies.json')
+        if not os.path.isfile(deps_file):
+            log.debug("No dependencies.json; skipping installing system packages")
+
+        with open(deps_file) as f:
+            deps = json.load(f)
 
         log.info('Installing system packages')
 
-        spec = distro.select_dependencies_spec(self.metadata['system_packages'])
+        spec = distro.select_dependencies_spec(deps['system_packages'])
         if spec is None:
             log.warn(("Couldn't find dependencies for this distro. "
                       "Please ensure these are installed: %s"),
-                      self.metadata['dependencies_description'])
+                      deps['description'])
             return 'no distro match'
 
         log.info('Packages to install: %r', spec['packages'])
@@ -114,7 +118,7 @@ class ApplicationInstaller(object):
         if returncode != 0:
             log.warn(("Installing dependencies failed. "
                       "Please ensure these are installed: %s"),
-                      self.metadata['dependencies_description'])
+                      deps['description'])
             return 'install failed'
 
     def copy_application(self):

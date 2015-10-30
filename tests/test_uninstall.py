@@ -11,7 +11,7 @@ from batislib import install, uninstall
 
 batis_root = dirname(dirname(__file__))
 
-class InstallerTests(TestCase):
+class UninstallerTests(TestCase):
     def setUp(self):
         sampleapp = pjoin(batis_root, 'sampleapp')
         td = TemporaryDirectory()
@@ -22,7 +22,10 @@ class InstallerTests(TestCase):
         # Install the application
         scheme = install.get_install_scheme('user')
         scheme['commands'] = pjoin(self.td, 'bin')
-        install.ApplicationInstaller(sampleapp, scheme).install()
+        ai = install.ApplicationInstaller(sampleapp, scheme)
+        # Mock out installing system packages so it doesn't do anything
+        ai.install_system_packages = lambda backend: None
+        ai.install()
 
         self.appdir = pjoin(self.td, 'installed-applications', 'sampleapp')
         self.uninstaller = uninstall.ApplicationUninstaller(self.appdir, scheme)

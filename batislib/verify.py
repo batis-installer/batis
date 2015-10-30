@@ -33,56 +33,70 @@ class UnpackedDirVerifier(object):
 
         with open(metadata_file, 'r') as f:
             try:
-                m = metadata = json.load(f)
+                metadata = json.load(f)
             except ValueError as e:
-                problems.append('batis_info/metadata.json is not valid JSON: %s' % e)
+                pa('batis_info/metadata.json is not valid JSON: %s' % e)
                 return
 
         if 'name' in metadata:
             if not isinstance(metadata['name'], str):
-                problems.append('name field in metadata is not a string: %r' % metadata['name'])
+                pa('name field in metadata is not a string: %r' % metadata['name'])
         else:
-            problems.append('Missing name field in metadata')
+            pa('Missing name field in metadata')
 
         if 'byline' in metadata:
             if not isinstance(metadata['byline'], str):
-                problems.append('byline field in metadata is not a string: %r' % metadata['byline'])
+                pa('byline field in metadata is not a string: %r' % metadata['byline'])
         else:
-            problems.append('Missing byline field in metadata')
+            pa('Missing byline field in metadata')
 
         if 'icon' in metadata:
             if isinstance(metadata['icon'], str):
                 if not os.path.isfile(self._relative(metadata['icon'])):
-                    problems.append('Icon file specified in metadata does not exist: %s' % metadata['icon'])
+                    pa('Icon file specified in metadata does not exist: %s' % metadata['icon'])
             else:
-                problems.append('icon field in metadata is not a string: %r' % metadata['icon'])
+                pa('icon field in metadata is not a string: %r' % metadata['icon'])
         else:
-            problems.append('Missing icon field in metadata')
+            pa('Missing icon field in metadata')
 
         for cmd_info in metadata.get('commands', []):
             if not isinstance(cmd_info, dict):
-                problems.append('Non-dictionary in commands list: %r' % cmd_info)
+                pa('Non-dictionary in commands list: %r' % cmd_info)
                 continue
 
             if 'target' not in cmd_info:
-                problems.append('No target field in command info: %r' % cmd_info)
+                pa('No target field in command info: %r' % cmd_info)
 
             if 'name' not in cmd_info:
-                problems.append('No name field in command info: %r' % cmd_info)
+                pa('No name field in command info: %r' % cmd_info)
 
             if not os.path.isfile(self._relative(cmd_info['target'])):
-                problems.append('Command target does not exist in package: %r' % cmd_info['target'])
+                pa('Command target does not exist in package: %r' % cmd_info['target'])
 
-        if 'system_packages' not in m:
-            pa('No system_packages field in metadata. '
-               'If the package really has no requirements, specify "system_packages": null')
-        elif m['system_packages'] is None:
-            pass
-        elif isinstance(m['system_packages'], list):
-            system_packages = m['system_packages']
+
+    def verify_dependencies(self, problems):
+        pa = problems.append
+        
+        deps_file = self._relative('batis_info', 'dependencies.json')
+        if not os.path.isfile(deps_file):
+            # This is optional
+            return
+        
+        with open(deps_file, 'r') as f:
+            try:
+                d = deps = json.load(f)
+            except ValueError as e:
+                problems.append('batis_info/dependencies.json is not valid JSON: %s' % e)
+                return
+        
+        if 'system_packages' not in d:
+            pa('No system_packages field in dependencies.json. '
+               'If the package really has no requirements, delete that file.')
+        elif isinstance(d['system_packages'], list):
+            system_packages = d['system_packages']
             if len(system_packages) == 0:
                 pa("system_packages should not be an empty list. "
-                   'If the package really has no requirements, specify "system_packages": null')
+                   'If the package really has no requirements, delete dependencies.json')
 
             for spec in system_packages:
                 if not isinstance(spec, dict):
@@ -99,14 +113,13 @@ class UnpackedDirVerifier(object):
                     pa("Package spec packages field is not a list: %r" % spec['packages'])
 
         else:
-            pa('system_packages is neither null nor a list: %r' % metadata['system_packages'])
+            pa('system_packages is not a list: %r' % deps['system_packages'])
 
-        if m.get('system_packages', False) is not None:
-            if 'dependencies_description' not in m:
-                pa('dependencies_description field missing')
-            elif not isinstance(m['dependencies_description'], str):
-                pa('dependencies_description is not a string: %r' %
-                    m['dependencies_description'])
+        if 'description' not in d:
+            pa('description field missing from dependencies.json')
+        elif not isinstance(d['description'], str):
+            pa('dependencies.json description is not a string: %r' %
+                d['description'])
 
     def verify_desktop_files(self, problems):
         desktop_dir = self._relative('batis_info', 'desktop')
@@ -207,6 +220,7 @@ class UnpackedDirVerifier(object):
         problems = []
         self.verify_batis_info_subdir(problems)
         self.verify_metadata(problems)
+        self.verify_dependencies(problems)
         self.verify_desktop_files(problems)
         self.verify_mimetypes(problems)
         self.verify_icons(problems)

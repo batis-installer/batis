@@ -1,8 +1,24 @@
 FAQs
 ====
 
-No-one's actually asked them yet, but here the answers to some questions you
-might have.
+Security
+--------
+
+Batis assumes that the user who installs an application trusts the developer who
+wrote it. It aims to ensure that the software you download is what the real author
+provided, but it doesn't check that the author is trustworthy, and it doesn't
+sandbox installed applications.
+
+This is not a great security model, but in practice it's one we're all used to
+using. I deliberately didn't try to do something more secure, because designing
+and implementing a good security model is hard. I don't want to promise security
+that I can't really provide, and I don't want to put off developers with extra
+requirements.
+
+I'm still thinking about security, and a future version of Batis might integrate
+something like capabilities based security, or a means of calculating reputation.
+There are interesting projects like `Subuser <http://subuser.org/>`__ working on
+this. But this is not a priority for me at the moment.
 
 Can I distribute proprietary applications using Batis?
 ------------------------------------------------------

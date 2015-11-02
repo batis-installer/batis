@@ -6,6 +6,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   install-batis
+   installing
    whybatis
    packaging
    whatitsnot

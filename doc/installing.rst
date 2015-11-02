@@ -16,7 +16,7 @@ Uninstalling applications
 
     batis uninstall <name>
 
-.. todo: finding the name
+Run ``batis list`` to see the names of installed applications.
 
 Adapting applications not packaged with Batis
 ---------------------------------------------

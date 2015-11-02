@@ -9,6 +9,8 @@ subcommands = [
          'Download and install an application from a URL'),
     ('installtar', '.install:main',
          'Install a tarball that was already downloaded'),
+    ('list', '.list:main',
+         'List installed applications'),
     ('uninstall', '.uninstall:main',
          'Remove an installed application'),
     # Developer focussed

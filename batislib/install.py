@@ -168,7 +168,16 @@ class ApplicationInstaller(object):
                                      theme, sizestr, context, basename)
                         self.install_file(src, dest)
 
-            call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
+            try:
+                rc = call(['xdg-icon-resource', 'forceupdate', '--theme', theme])
+            except OSError as e:
+                if e.errno == errno.ENOENT:
+                    log.warn('xdg-icon-resource is not available')
+                else:
+                    raise
+            else:
+                if rc != 0:
+                    log.warn('xdg-icon-resource failed')
 
     def install_mimetypes(self):
         source_files = glob.glob(self._relative('batis_info', 'mime', '*.xml')) 
@@ -178,7 +187,16 @@ class ApplicationInstaller(object):
             self.install_file(file, dest)
         
         if source_files:
-            call(['update-mime-database', self.scheme['mimetypes']])
+            try:
+                rc = call(['update-mime-database', self.scheme['mimetypes']])
+            except OSError as e:
+                if e.errno == errno.ENOENT:
+                    log.warn('update-mime-database is not available')
+                else:
+                    raise
+            else:
+                if rc != 0:
+                    log.warn('update-mime-database failed')
 
     def install_desktop_files(self):
         install_dir = pjoin(self.scheme['application'],
@@ -196,7 +214,16 @@ class ApplicationInstaller(object):
                 f.write(contents.replace('{{INSTALL_DIR}}', install_dir))
         
         if files:
-            call(['update-desktop-database', self.scheme['desktop']])
+            try:
+                rc = call(['update-desktop-database', self.scheme['desktop']])
+            except OSError as e:
+                if e.errno == errno.ENOENT:
+                    log.warn('update-desktop-database is not available')
+                else:
+                    raise
+            else:
+                if rc != 0:
+                    log.warn('update-desktop-database failed')
     
     def write_manifest(self):
         with open(pjoin(self.scheme['application'],

@@ -1,7 +1,7 @@
 {
   "name": "Batis",
   "byline": "Application installer",
-  "icon": "",
+  "icon": "batis_info/icons/hicolor/48x48/apps/batis.png",
   "commands": [
     {"name": "batis", "target": "batis"}
   ]

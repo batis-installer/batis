@@ -10,4 +10,4 @@ script:
   - if [[ ${TRAVIS_PYTHON_VERSION} != '2.7' ]]; then py.test -v; fi
 
 # Ensure dependencies are installed
-install: pip install requests testpath
+install: pip install requests testpath pyxdg

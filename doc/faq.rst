@@ -1,5 +1,5 @@
-Frequently Asked Questions
-==========================
+FAQs
+====
 
 No-one's actually asked them yet, but here the answers to some questions you
 might have.

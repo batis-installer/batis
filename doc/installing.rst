@@ -1,5 +1,5 @@
-Installing applications using Batis
-===================================
+Installing applications
+=======================
 
 You can install an application packaged with Batis by unpacking the tarball and
 running the ``install.sh`` file inside it. But if you :doc:`install Batis <install-batis>`,

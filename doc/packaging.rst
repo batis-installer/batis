@@ -1,5 +1,5 @@
-Packaging an application using Batis
-====================================
+Packaging an application
+========================
 
 .. note::
 
@@ -142,8 +142,8 @@ If your package doesn't require any system packages, you can leave the
 
 .. _build_index:
 
-The builds index
-----------------
+The index file
+--------------
 
 When users install an application using a URL, Batis looks for an index
 file called ``batis_index.json``. For example, to let users

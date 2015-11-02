@@ -1,5 +1,5 @@
-Installing Batis itself
-=======================
+Installing Batis
+================
 
 Naturally, Batis is a Batis package itself. To install Batis the first time,
 download it from (TODO LINK), unpack it and run ``install.sh``::

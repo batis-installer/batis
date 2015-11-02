@@ -1,3 +1,6 @@
+import pytest
+pytestmark = pytest.mark.selfinstall
+
 from testpath import MockCommand, assert_calls
 from batislib import distro
 

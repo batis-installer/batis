@@ -5,6 +5,9 @@ import testpath
 from testpath.tempdir import TemporaryDirectory
 from unittest import TestCase
 
+import pytest
+pytestmark = pytest.mark.selfinstall
+
 from batislib import install
 
 batis_root = dirname(dirname(__file__))

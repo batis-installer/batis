@@ -72,7 +72,7 @@ def pack_main(argv=None):
         help="The application name to use. Uses the directory name if not specified")
     ap.add_argument('-o', '--output-file',
         help="The tarball will be written to this location")
-    ap.add_argument('--no-install-script',
+    ap.add_argument('--no-install-script', action='store_true',
         help="Don't include a ./install.sh script inside the tarball")
     ap.add_argument('directory', help="The directory to package")
     args = ap.parse_args(argv)

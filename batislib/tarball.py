@@ -86,7 +86,7 @@ def pack_main(argv=None):
             print(problem)
 
         print()
-        print(len(problems), "problems found in", args.path)
+        print(len(problems), "problems found in", args.directory)
         sys.exit(1)
     
     pack_tarball(args.directory, args.output_file, args.name,

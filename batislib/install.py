@@ -93,6 +93,7 @@ class ApplicationInstaller(object):
         deps_file = self._relative('batis_info', 'dependencies.json')
         if not os.path.isfile(deps_file):
             log.debug("No dependencies.json; skipping installing system packages")
+            return
 
         with open(deps_file) as f:
             deps = json.load(f)

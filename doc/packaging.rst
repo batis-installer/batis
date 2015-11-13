@@ -1,11 +1,13 @@
 Packaging an application
 ========================
 
-.. note::
+.. topic:: Packaging examples
 
-   This describes how to work directly with Batis to distribute an application.
-   I hope that higher level tools will offer simpler ways to do this in the
-   future.
+   There are `example applications <https://batis-installer.github.io/example-apps/>`_
+   showing how to use Batis with popular technologies like Electron or PyQt.
+
+You've got your application running smoothly, and you're ready to invite other
+people to use it. Here's how to package it from scratch using Batis:
 
 1. Prepare a directory containing your built application, so that it can run
    regardless of where the directory is located (i.e. everything inside the

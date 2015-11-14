@@ -10,6 +10,8 @@ from .install import get_install_scheme
 
 pjoin = os.path.join
 
+log = logging.getLogger(__name__)
+
 class UnknownApplication(ValueError):
     def __init__(self, name):
         self.name = name
@@ -75,6 +77,7 @@ class ApplicationUninstaller(object):
         self.remove_files()
         self.run_triggers()
         self.remove_appdir()
+        log.info('Uninstalled %s', self.appdir)
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog='batis uninstall')

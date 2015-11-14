@@ -23,6 +23,9 @@ people to use it. Here's how to package it from scratch using Batis:
        displayed by installers.
      - ``icon`` - the relative path to an icon file within your application
        directory. This may be displayed by graphical installers.
+     - ``index_url`` - the URL of the application's :ref:`index file <index_file>`.
+       Future versions of Batis will use this to look for application updates.
+       Optional but strongly recommended.
      - ``commands`` - list of objects, each with 'name' and 'target' keys.
        ``target``, a path relative to the root of your application directory,
        will be symlinked as ``name`` to a location on :envvar:`PATH`. E.g.::
@@ -76,7 +79,7 @@ people to use it. Here's how to package it from scratch using Batis:
    without Batis can easily install your application. Upload the tarball
    somewhere publicly accessible.
 
-5. Prepare a :ref:`build index file <build_index>`, and add it to your project's
+5. Prepare a :ref:`build index file <index_file>`, and add it to your project's
    website as ``/batis_index.json``.
 
 You can now invite users with Batis to install your application by running::
@@ -142,7 +145,7 @@ will ask the user to ensure the dependencies are installed. It uses the
 If your package doesn't require any system packages, you can leave the
 ``dependencies.json`` file out.
 
-.. _build_index:
+.. _index_file:
 
 The index file
 --------------

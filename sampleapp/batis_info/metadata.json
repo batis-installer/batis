@@ -1,6 +1,7 @@
 {"name": "Example App",
  "byline": "An empty application to test Batis",
  "icon": "batis_info/icons/hicolor/48x48/apps/tango-calculator.png",
+ "index_url": "https://example.com/batis_index.json",
  "commands": [
    {"name": "launch-sampleapp", "target": "run.sh"}
  ]

@@ -59,6 +59,15 @@ class UnpackedDirVerifier(object):
         else:
             pa('Missing icon field in metadata')
 
+        if 'index_url' in metadata:
+            if isinstance(metadata['index_url'], str):
+                if not metadata['index_url'].startswith('https://'):
+                    pa('Index url in metadata is not https: %s' % metadata['index_url'])
+            else:
+                pa('index_url field in metadata is not a string: %r' % metadata['index_url'])
+        else:
+            pa('Missing index_url field in metadata (optional but recommended)')
+
         for cmd_info in metadata.get('commands', []):
             if not isinstance(cmd_info, dict):
                 pa('Non-dictionary in commands list: %r' % cmd_info)

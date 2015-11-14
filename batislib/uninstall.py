@@ -7,6 +7,7 @@ import shutil
 from subprocess import call
 
 from .install import get_install_scheme
+from .log import enable_colourful_output
 
 pjoin = os.path.join
 
@@ -83,6 +84,6 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog='batis uninstall')
     ap.add_argument('name', help='The application name to uninstall')
     args = ap.parse_args(argv)
-    logging.basicConfig(level=logging.INFO)
+    enable_colourful_output(level=logging.INFO)
     appdir, scheme = find_installed_application(args.name)
     ApplicationUninstaller(appdir, scheme).run()

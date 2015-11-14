@@ -1,4 +1,5 @@
 __pycache__
+*.pyc
 doc/_build/
 doc/gh-pages/
 gui/ui_*.py

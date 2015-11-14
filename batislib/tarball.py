@@ -5,6 +5,8 @@ import sys
 import tarfile
 from tempfile import mkdtemp
 
+from .log import enable_colourful_output
+
 pjoin = os.path.join
 
 log = logging.getLogger(__name__)
@@ -77,7 +79,7 @@ def pack_main(argv=None):
     ap.add_argument('directory', help="The directory to package")
     args = ap.parse_args(argv)
     
-    logging.basicConfig(level=logging.INFO)
+    enable_colourful_output(level=logging.INFO)
     
     from .verify import UnpackedDirVerifier
     problems = UnpackedDirVerifier(args.directory).verify()

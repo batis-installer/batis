@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import argparse
 import hashlib
+import logging
 import os.path
 import requests
 from shutil import rmtree
 from tempfile import mkdtemp
 
 from .install import ApplicationInstaller, get_install_scheme
+from .log import enable_colourful_output
 from . import select_build
 
 class NullProgress(object):
@@ -103,5 +105,7 @@ def main(argv=None):
     ap.add_argument('url', help='The URL from which to install')
     args = ap.parse_args(argv)
     
+    enable_colourful_output(level=logging.INFO)
+
     scheme = get_install_scheme('system' if args.system else 'user')
     install(args.url, scheme)

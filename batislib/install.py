@@ -12,6 +12,7 @@ pjoin = os.path.join
 basename = os.path.basename
 
 from . import distro, tarball
+from .log import enable_colourful_output
 
 log = logging.getLogger(__name__)
 
@@ -260,13 +261,13 @@ def main(argv=None):
     ap.add_argument('--system', action='store_true',
             help='Install systemwide, instead of for the user')
     ap.add_argument('--backend', action='store_true',
-            help='Print steps to stdout to update the GUI installer')
+            help=argparse.SUPPRESS)
     ap.add_argument('path', help='The application tarball or directory to install')
     args = ap.parse_args(argv)
     if args.backend:
         log.addHandler(logging.NullHandler())
     else:
-        logging.basicConfig(level=logging.INFO)
+        enable_colourful_output(level=logging.INFO)
     scheme = get_install_scheme('system' if args.system else 'user')
     ai = ApplicationInstaller(args.path, scheme)
     ai.install(args.backend)

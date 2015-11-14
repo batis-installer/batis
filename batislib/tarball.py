@@ -74,6 +74,8 @@ def pack_main(argv=None):
         help="The application name to use. Uses the directory name if not specified")
     ap.add_argument('-o', '--output-file',
         help="The tarball will be written to this location")
+    ap.add_argument('--no-verify', action='store_true',
+        help="Skip verifying the application directory before packing it")
     ap.add_argument('--no-install-script', action='store_true',
         help="Don't include a ./install.sh script inside the tarball")
     ap.add_argument('directory', help="The directory to package")
@@ -81,15 +83,16 @@ def pack_main(argv=None):
     
     enable_colourful_output(level=logging.INFO)
     
-    from .verify import UnpackedDirVerifier
-    problems = UnpackedDirVerifier(args.directory).verify()
-    if problems:
-        for problem in problems:
-            print(problem)
+    if not args.no_verify:
+        from .verify import UnpackedDirVerifier
+        problems = UnpackedDirVerifier(args.directory).verify()
+        if problems:
+            for problem in problems:
+                print(problem)
 
-        print()
-        print(len(problems), "problems found in", args.directory)
-        sys.exit(1)
+            print()
+            print(len(problems), "problems found in", args.directory)
+            sys.exit(1)
     
     pack_tarball(args.directory, args.output_file, args.name,
                  install_script=(not args.no_install_script))

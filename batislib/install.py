@@ -233,6 +233,20 @@ class ApplicationInstaller(object):
                         'batis_info', 'installed_files.json'), 'w') as f:
             json.dump(self.installed_files, f, indent=2)
 
+    def ensure_path_env(self):
+        """Ensure $PATH includes the directory where shell commands are installed"""
+        if not self.metadata.get('commands', None):
+            # Not installing any commands to $PATH
+            return
+
+        path = os.environ.get('PATH', os.defpath).split(os.pathsep)
+        if self.scheme['commands'] not in path:
+            profile = os.path.expanduser('~/.profile')
+            with open(profile, 'a') as f:
+                f.write('\nPATH="{}:$PATH"\n'.format(self.scheme['commands']))
+
+            log.warn("You may need to log out and back in to use this application")
+
     def install(self, backend=False):
         def emit(msg):
             if backend:

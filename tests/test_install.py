@@ -5,6 +5,11 @@ import testpath
 from testpath.tempdir import TemporaryDirectory
 from unittest import TestCase
 
+try:
+    from unittest import mock  # Python 3
+except ImportError:
+    import mock  # Python 2
+
 import pytest
 pytestmark = pytest.mark.selfinstall
 
@@ -75,3 +80,19 @@ class InstallerTests(TestCase):
         testpath.assert_path_exists(foobar_script)
         self.installer.copy_application()
         testpath.assert_not_path_exists(foobar_script)
+
+    def test_ensure_path_env(self):
+        def mock_expanduser(p):
+            return p.replace('~', self.td)
+
+        with mock.patch('os.path.expanduser', mock_expanduser), \
+             testpath.modified_env({'PATH': '/bin'}):
+
+            self.installer.ensure_path_env()
+
+        profile_file = pjoin(self.td, '.profile')
+        testpath.assert_isfile(profile_file)
+
+        with open(profile_file, 'r') as f:
+            contents = f.read()
+        assert self.installer.scheme['commands']+':$PATH' in contents

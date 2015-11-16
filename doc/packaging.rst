@@ -18,11 +18,13 @@ people to use it. Here's how to package it from scratch using Batis:
    * :file:`metadata.json` - a JSON object containing information about your
      application, including:
 
-     - ``name`` - the human readable name of your application.
-     - ``byline`` - a very brief description of your application, which may be
-       displayed by installers.
-     - ``icon`` - the relative path to an icon file within your application
-       directory. This may be displayed by graphical installers.
+     - ``name`` and ``byline`` - brief, human readable information about the
+       application, which may be displayed by tools for managing applications.
+     - ``icon_name`` *or* ``icon_file`` - an icon for your application, which tools
+       for managing applications may display. ``icon_name``, which is preferred,
+       identifies an icon from the ``batis_info/icons`` directory described below.
+       ``icon_file`` is a relative path to an icon file within the application
+       directory.
      - ``index_url`` - the URL of the application's :ref:`index file <index_file>`.
        Future versions of Batis will use this to look for application updates.
        Optional but strongly recommended.

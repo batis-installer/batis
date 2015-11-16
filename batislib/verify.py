@@ -50,14 +50,27 @@ class UnpackedDirVerifier(object):
         else:
             pa('Missing byline field in metadata')
 
-        if 'icon' in metadata:
-            if isinstance(metadata['icon'], str):
-                if not os.path.isfile(self._relative(metadata['icon'])):
-                    pa('Icon file specified in metadata does not exist: %s' % metadata['icon'])
+
+        if 'icon_name' in metadata:
+            if 'icon_file' in metadata:
+                pa("Metadata has both 'icon_name' and 'icon_file'. Remove one.")
+
+            if isinstance(metadata['icon_name'], str):
+                icon_file = self._relative('batis_info/icons/hicolor/48x48/apps',
+                                           metadata['icon_name'] + '.png')
+                if not os.path.isfile(icon_file):
+                    pa('Icon nameed in metadata does not exist: %s' % icon_file)
             else:
-                pa('icon field in metadata is not a string: %r' % metadata['icon'])
+                pa('icon_name field in metadata is not a string: %r' % metadata['icon_name'])
+
+        elif 'icon_file' in metadata:
+            if isinstance(metadata['icon_file'], str):
+                if not os.path.isfile(self._relative(metadata['icon_file'])):
+                    pa('Icon file specified in metadata does not exist: %s' % metadata['icon_file'])
+            else:
+                pa('icon_file field in metadata is not a string: %r' % metadata['icon_file'])
         else:
-            pa('Missing icon field in metadata')
+            pa("Neither 'icon_name' nor 'icon_file' found in metadata")
 
         if 'index_url' in metadata:
             if isinstance(metadata['index_url'], str):

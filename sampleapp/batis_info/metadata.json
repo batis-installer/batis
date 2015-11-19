@@ -4,5 +4,6 @@
  "index_url": "https://example.com/batis_index.json",
  "commands": [
    {"name": "launch-sampleapp", "target": "run.sh"}
- ]
+ ],
+ "format_version": [1, 0]
 }

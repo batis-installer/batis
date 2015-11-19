@@ -51,6 +51,16 @@ class IndexVerifier:
                 pa("'icon_url' field must not be empty")
         else:
             pa("Index should have a 'icon_url' field")
+        
+        if 'format_version' in c:
+            fv = c['format_version']
+            if isinstance(fv, list) and len(fv) == 2:
+                if fv != [1, 0]:
+                    pa('This code is only to verify format_version 1.0 (found %s.%s)' % tuple(fv))
+            else:
+                pa('format_version is not a list of length 2: %r' % fv)
+        else:
+            pa('Index should have a format_version field')
 
         if 'builds' not in c:
             pa("Index must have a 'builds' field at the top level")

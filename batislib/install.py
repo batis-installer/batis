@@ -49,6 +49,19 @@ def get_install_scheme(name):
     return {k: os.path.expanduser(v.format(XDG_DATA_HOME=XDG_DATA_HOME))
             for (k,v) in scheme.items()}
 
+PKG_FORMAT_MAJOR = 1
+PKG_FORMAT_MINOR = 0
+
+class FuturePackageFormat(Exception):
+    def __init__(self, major_version):
+        self.major_version = major_version
+
+    def __str__(self):
+        return ("The package format is version {}, "
+                "but this version of Batis only understands version {}. "
+                "Please upgrade Batis to install this package."
+                ).format(self.major_version, PKG_FORMAT_MAJOR)
+
 class ApplicationInstaller(object):
     def __init__(self, path, scheme):
         """Class with the main installation logic
@@ -64,6 +77,9 @@ class ApplicationInstaller(object):
         self.scheme = scheme
         with open(self._relative('batis_info', 'metadata.json')) as f:
             self.metadata = json.load(f)
+        
+        if self.metadata['format_version'][0] > 1:
+            raise FuturePackageFormat(self.metadata['format_version'][0])
         
         self.installed_files = []
 

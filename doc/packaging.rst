@@ -33,6 +33,11 @@ people to use it. Here's how to package it from scratch using Batis:
        will be symlinked as ``name`` to a location on :envvar:`PATH`. E.g.::
        
            "commands": [{"target": "bin/launch.sh", "name": "myapp"}]
+    
+     - ``format_version`` - ``[1, 0]`` with the details described in this
+       document. Future releases may increment the second number for backwards
+       compatible changes to the package format, and the first for incompatible
+       changes.
        
    * :file:`dependencies.json` - optional, a JSON object with details about
      external packages that need to be installed for you application. See
@@ -168,6 +173,7 @@ The index should be JSON, looking like this::
       "name": "My App",
       "byline": "Easily frobulate pufoos on demand",
       "icon_url": "https://example.com/myapp_logo.png",
+      "format_version": [1, 0],
       "builds": [
         {
           "url": "https://example.com/downloads/myapp_0.1_linux_64bit.app.tar.gz",
@@ -191,6 +197,10 @@ The ``name``, ``byline`` and ``icon_url`` fields are like those inside
 :file:`metadata.json`, except that ``icon_url`` is a URL. These fields are
 duplicated so that installer tools can display information about the application
 before downloading a tarball.
+
+``format_version`` is ``[1, 0]`` with the details described here. This is for the
+index format, and is not connected to the package format version stored in
+``metadata.json``.
 
 Batis will select an appropriate build for the user's system from the ``builds`` array, based on the
 ``kernel`` and ``arch`` fields. These should match the results of ``uname -s``

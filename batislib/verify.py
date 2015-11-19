@@ -80,6 +80,16 @@ class UnpackedDirVerifier(object):
                 pa('index_url field in metadata is not a string: %r' % metadata['index_url'])
         else:
             pa('Missing index_url field in metadata (optional but recommended)')
+        
+        if 'format_version' in metadata:
+            fv = metadata['format_version']
+            if isinstance(fv, list) and len(fv) == 2:
+                if fv != [1, 0]:
+                    pa('This code is only to verify format_version 1.0 (found %s.%s)' % tuple(fv))
+            else:
+                pa('format_version is not a list of length 2: %r' % fv)
+        else:
+            pa('Missing format_version field in metadata')
 
         for cmd_info in metadata.get('commands', []):
             if not isinstance(cmd_info, dict):

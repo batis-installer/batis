@@ -11,6 +11,19 @@ from .install import ApplicationInstaller, get_install_scheme
 from .log import enable_colourful_output
 from . import select_build
 
+INDEX_FORMAT_MAJOR = 1
+INDEX_FORMAT_MINOR = 0
+
+class FutureIndexFormat(Exception):
+    def __init__(self, major_version):
+        self.major_version = major_version
+
+    def __str__(self):
+        return ("The index format is version {}, "
+                "but this version of Batis only understands version {}. "
+                "Please upgrade Batis to install this package."
+                ).format(self.major_version, INDEX_FORMAT_MAJOR)
+
 class NullProgress(object):
     def start(self, max_value=None):
         pass
@@ -70,7 +83,12 @@ def prepare_index_url(url):
 def install(url, scheme, backend=False):
     url = prepare_index_url(url)
     r = requests.get(url)
-    candidates = r.json()['builds']
+    index = r.json()
+    
+    if index['format_version'][0] > INDEX_FORMAT_MAJOR:
+        raise FutureIndexFormat(index['format_version'][0])
+    
+    candidates = index['builds']
     
     build = select_build.select_latest(select_build.filter_eligible(candidates))
     

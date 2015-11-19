@@ -166,6 +166,8 @@ The index should be JSON, looking like this::
 
     {
       "name": "My App",
+      "byline": "Easily frobulate pufoos on demand",
+      "icon_url": "https://example.com/myapp_logo.png",
       "builds": [
         {
           "url": "https://example.com/downloads/myapp_0.1_linux_64bit.app.tar.gz",
@@ -185,7 +187,12 @@ The index should be JSON, looking like this::
    
        batis verify-index <path_or_url>
 
-Batis will select an appropriate build for the user's system based on the
+The ``name``, ``byline`` and ``icon_url`` fields are like those inside
+:file:`metadata.json`, except that ``icon_url`` is a URL. These fields are
+duplicated so that installer tools can display information about the application
+before downloading a tarball.
+
+Batis will select an appropriate build for the user's system from the ``builds`` array, based on the
 ``kernel`` and ``arch`` fields. These should match the results of ``uname -s``
 and ``uname -m`` respectively, and are not case sensitive. As a special case,
 ``"arch": "x86"`` will match ``i386``, ``i686``, and any ``i<N>86``.

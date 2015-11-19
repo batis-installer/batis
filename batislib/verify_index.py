@@ -34,10 +34,26 @@ class IndexVerifier:
             elif c['name'] == '':
                 pa("'name' field must not be empty")
         else:
-            pa("Index must have a 'name' field at the top level.")
+            pa("Index must have a 'name' field at the top level")
+
+        if 'byline' in c:
+            if not isinstance(c['byline'], str):
+                pa("'byline' field should be a string")
+            elif c['byline'] == '':
+                pa("'byline' field must not be empty")
+        else:
+            pa("Index must have a 'byline' field at the top level")
+
+        if 'icon_url' in c:
+            if not isinstance(c['icon_url'], str):
+                pa("'icon_url' field should be a string")
+            elif c['icon_url'] == '':
+                pa("'icon_url' field must not be empty")
+        else:
+            pa("Index should have a 'icon_url' field")
 
         if 'builds' not in c:
-            pa("Index must have a 'builds' field at the top level.")
+            pa("Index must have a 'builds' field at the top level")
             return
             
         builds = self.contents['builds']

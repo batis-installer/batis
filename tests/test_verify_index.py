@@ -2,6 +2,8 @@ from batislib import verify_index
 
 SAMPLE_OK = {
     'name': 'My App',
+    'byline': 'Easily frobulate pufoos on demand',
+    'icon_url': 'https://example.com/myapp_logo.png',
     'builds': [
         {
           "url": "https://example.com/downloads/myapp_0.1_linux_64bit.app.tar.gz",
@@ -17,7 +19,12 @@ def test_ok():
     problems = verify_index.IndexVerifier(SAMPLE_OK).verify()
     assert problems == []
 
-SAMPLE_NO_BUILDS = {'name': 'My App', 'builds': []}
+SAMPLE_NO_BUILDS = {
+    'name': 'My App',
+    'byline': 'Frobulate pufoos',
+    'icon_url': 'https://example.com/myapp_logo.png',
+    'builds': []
+}
 
 def test_no_builds():
     problems = verify_index.IndexVerifier(SAMPLE_NO_BUILDS).verify()

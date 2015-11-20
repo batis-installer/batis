@@ -33,7 +33,8 @@ There are two major advantages to using Batis:
 - One package works on any distribution, so developers can distribute their
   application without having to learn about several different packaging systems.
 
-I've written more about this on my blog (TODO: link).
+I've `written more about this <http://takluyver.github.io/posts/why-did-i-write-yet-another-package-manager.html>`__
+on my blog.
 
 Can I distribute proprietary applications using Batis?
 ------------------------------------------------------

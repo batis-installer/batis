@@ -2,10 +2,11 @@ Installing applications
 =======================
 
 With Batis installed, you can install applications by clicking a link on the
-application's webpage.
+application's webpage. For example: `install a sample application
+<batis://batis-installer.github.io/example-apps/pyqt/batis_index.json>`__.
 
 If you prefer to use the command line, copy the URL from the link (it will begin
-with ``batis://``), and run:
+with ``batis://``), and run::
 
     batis install batis://...
 

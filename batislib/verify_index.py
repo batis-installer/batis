@@ -50,7 +50,7 @@ class IndexVerifier:
             elif c['icon_url'] == '':
                 pa("'icon_url' field must not be empty")
         else:
-            pa("Index should have a 'icon_url' field")
+            pa("Index should have an 'icon_url' field")
         
         if 'format_version' in c:
             fv = c['format_version']

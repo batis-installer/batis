@@ -5,6 +5,6 @@ Name=Batis installer (console)
 # This is for opening URLs, not launching Batis from a menu
 NoDisplay=true
 Icon=batis
-Exec="{{INSTALL_DIR}/batis" install --confirm --prompt-before-exit %u
+Exec="{{INSTALL_DIR}}/batis" install --confirm --prompt-before-exit %u
 Terminal=true
 MimeType=x-scheme-handler/batis;

@@ -1,6 +1,7 @@
 {
   "system_packages": [
-    {"package_manager": "apt-get", "packages": ["python3", "python3-xdg"]}
+    {"package_manager": "apt-get", "packages": ["python3", "python3-xdg"]},
+    {"package_manager": "yum", "packages": ["python3", "python3-pyxdg"]},
   ],
   "description": "Python3, PyXDG"
 }

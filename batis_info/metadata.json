@@ -1,7 +1,9 @@
 {
+  "format_version": [1, 0],
   "name": "Batis",
   "byline": "Application installer",
-  "icon": "batis_info/icons/hicolor/48x48/apps/batis.png",
+  "icon_name": "batis",
+  "index_url": "https://batis-installer.github.io/batis_index.json",
   "commands": [
     {"name": "batis", "target": "batis"}
   ]

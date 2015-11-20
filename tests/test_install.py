@@ -10,9 +10,6 @@ try:
 except ImportError:
     import mock  # Python 2
 
-import pytest
-pytestmark = pytest.mark.selfinstall
-
 from batislib import install
 
 batis_root = dirname(dirname(__file__))

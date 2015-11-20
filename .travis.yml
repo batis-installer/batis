@@ -6,8 +6,7 @@ python:
 
 # command to run tests
 script:
-  - if [[ ${TRAVIS_PYTHON_VERSION} == '2.7' ]]; then py.test -v -m selfinstall; fi
-  - if [[ ${TRAVIS_PYTHON_VERSION} != '2.7' ]]; then py.test -v; fi
+  - py.test -v
 
 # Ensure dependencies are installed
 install: pip install requests testpath pyxdg

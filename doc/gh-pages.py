@@ -11,6 +11,7 @@ from subprocess import check_call, check_output
 
 pages_dir = pjoin(dirname(__file__), 'gh-pages')
 html_dir = pjoin(dirname(__file__), '_build/html')
+batis_index_file = pjoin(dirname(__file__), 'batis_index.json')
 pages_repo = 'git@github.com:batis-installer/batis-installer.github.io.git'
 
 
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     check_call('rm -r %s/*' % pages_dir, shell=True)
     
     check_call('cp -r %s/* %s/' % (html_dir, pages_dir), shell=True)
+    check_call('cp -r %s %s/' % (batis_index_file, pages_dir), shell=True)
     
     with open(pjoin(pages_dir, '.nojekyll'), 'w'):
         # Creating empty .nojekyll file

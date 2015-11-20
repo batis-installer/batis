@@ -1,0 +1,13 @@
+{
+  "format_version": [1, 0],
+  "name": "Batis",
+  "byline": "Install and distribute desktop applications for Linux",
+  "icon_url": "https://batis-installer.github.io/_static/batis-logo.png",
+  "builds": [
+    {
+      "url": "https://github.com/batis-installer/batis/releases/download/v0.1/batis-0.1.app.tgz",
+      "sha512": "fe5c3376673dd6f661c66a14121b3c2061716a9e4ed2db8b738d038acf669ba157a5fa3ff0b947a6ab84d313aea240a4431a1d685d86e63ff837675a88519362",
+      "version": "0.1"
+    }
+  ]
+}

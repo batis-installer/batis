@@ -12,13 +12,28 @@ sandbox installed applications.
 This is not a great security model, but in practice it's one we're all used to
 using. I deliberately didn't try to do something more secure, because designing
 and implementing a good security model is hard. I don't want to promise security
-that I can't really provide, and I don't want to put off developers with extra
-requirements.
+that I can't really provide, and I don't want to put developers off by adding
+extra requirements.
 
 I'm still thinking about security, and a future version of Batis might integrate
 something like capabilities based security, or a means of calculating reputation.
 There are interesting projects like `Subuser <http://subuser.org/>`__ working on
 this. But this is not a priority for me at the moment.
+
+Why not use Linux distro packaging?
+-----------------------------------
+
+Batis packaging for desktop applications is designed to sit alongside distro
+packaging for system components and infrastructure.
+There are two major advantages to using Batis:
+
+- Users can install an application as soon as the developers release it.
+  There's no need to wait months and upgrade the entire system at once to get
+  the latest software.
+- One package works on any distribution, so developers can distribute their
+  application without having to learn about several different packaging systems.
+
+I've written more about this on my blog (TODO: link).
 
 Can I distribute proprietary applications using Batis?
 ------------------------------------------------------

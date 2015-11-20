@@ -67,3 +67,9 @@ except ImportError:
                     if _access_check(name, mode):
                         return name
         return None
+
+_home = os.path.expanduser('~').rstrip(os.sep)
+def compress_user(p):
+    if p.startswith(_home):
+        return '~' + p[len(_home):]
+    return p

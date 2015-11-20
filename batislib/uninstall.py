@@ -8,6 +8,7 @@ from subprocess import call
 
 from .install import get_install_scheme
 from .log import enable_colourful_output
+from .util import compress_user
 
 pjoin = os.path.join
 
@@ -78,7 +79,7 @@ class ApplicationUninstaller(object):
         self.remove_files()
         self.run_triggers()
         self.remove_appdir()
-        log.info('Uninstalled %s', self.appdir)
+        log.info('Uninstalled %s', compress_user(self.appdir))
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog='batis uninstall')

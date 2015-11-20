@@ -1,13 +1,17 @@
 Installing applications
 =======================
 
-You can install an application packaged with Batis by unpacking the tarball and
-running the ``install.sh`` file inside it. But if you :doc:`install Batis <install-batis>`,
-you can install applications with a single command::
+With Batis installed, you can install applications by clicking a link on the
+application's webpage.
 
-    batis install www.some-app.com
+If you prefer to use the command line, copy the URL from the link (it will begin
+with ``batis://``), and run:
 
-The application's website should tell you what URL to use in that command.
+    batis install batis://...
+
+You can also install an application packaged with Batis by unpacking the tarball
+and running the ``install.sh`` file inside it, whether or not you have Batis
+installed.
 
 Uninstalling applications
 -------------------------

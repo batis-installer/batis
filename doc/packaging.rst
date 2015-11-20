@@ -86,12 +86,17 @@ people to use it. Here's how to package it from scratch using Batis:
    without Batis can easily install your application. Upload the tarball
    somewhere publicly accessible.
 
-5. Prepare a :ref:`build index file <index_file>`, and add it to your project's
-   website as ``/batis_index.json``.
+5. Prepare a :ref:`build index file <index_file>`, and make it accessible on the
+   web over HTTPS.
 
-You can now invite users with Batis to install your application by running::
+You can now invite users with Batis to install your application using a link to
+the index file, replacing ``https://`` with ``batis://``. For instance:
 
-    batis install example.com/myapp/
+.. code-block:: html
+
+    <a href="batis://example.com/myapp/batis_index.json">
+        Click to install
+    </a>
 
 For users without Batis installed, provide links directly to the tarballs, and
 instructions to download, un-tar and run ``./install.sh``.
@@ -157,11 +162,9 @@ If your package doesn't require any system packages, you can leave the
 The index file
 --------------
 
-When users install an application using a URL, Batis looks for an index
-file called ``batis_index.json``. For example, to let users
-``batis install https://example.com/``, you would put the index at::
-
-    https://example.com/batis_index.json
+Users will install applications by pointing Batis at an index file.
+This is the entry point which describes your application and points to the
+available tarballs.
 
 The index file must be available over HTTPS. Hosting your website on
 `Github Pages <https://pages.github.com/>`__ is one easy and free way to support

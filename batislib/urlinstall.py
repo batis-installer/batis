@@ -6,6 +6,7 @@ import os.path
 import requests
 from shutil import rmtree
 from tempfile import mkdtemp
+from urllib.parse import urlparse, urlunparse
 
 from .install import ApplicationInstaller, get_install_scheme
 from .log import enable_colourful_output
@@ -73,24 +74,33 @@ def download(url, target, progress=None, hashobj=None):
 def prepare_index_url(url):
     if '//' not in url:
         url = 'https://' + url
-    elif url.startswith('http://'):
-        url = 'https' + url[4:]
     
-    if not url.endswith('.json'):
-        url = url.rstrip('/') + '/batis_index.json'
-    return url
+    parsed = urlparse(url)
+    if parsed.scheme not in {'http', 'https', 'batis'}:
+        raise ValueError('Unknown URL scheme %s' % parsed.scheme)
 
-def install(url, scheme, backend=False):
+    return urlunparse(('https',) + parsed[1:])
+
+def install(url, scheme, confirm=False, backend=False):
     url = prepare_index_url(url)
     r = requests.get(url)
     index = r.json()
     
     if index['format_version'][0] > INDEX_FORMAT_MAJOR:
         raise FutureIndexFormat(index['format_version'][0])
+
+    print('Installing from', urlparse(url).netloc, ':')
+    print('--', index['name'], '--')
+    print(index['byline'])
+    print()
+    if confirm:
+        res = input('Continue installation? [y]/n >')
+        if res and (res[0].lower() != 'y'):
+            print('Not installing')
+            return
     
-    candidates = index['builds']
-    
-    build = select_build.select_latest(select_build.filter_eligible(candidates))
+    build = select_build.select_latest(
+                select_build.filter_eligible(index['builds']))
     
     if 'sha512' in build:
         hashobj = hashlib.sha512()
@@ -118,6 +128,10 @@ def install(url, scheme, backend=False):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog='batis install')
+    ap.add_argument('--confirm', action='store_true',
+            help='Prompt for confirmation before installing')
+    ap.add_argument('--prompt-before-exit', action='store_true',
+            help=argparse.SUPPRESS)
     ap.add_argument('--system', action='store_true',
             help='Install systemwide, instead of for the user')
     ap.add_argument('url', help='The URL from which to install')
@@ -125,5 +139,17 @@ def main(argv=None):
     
     enable_colourful_output(level=logging.INFO)
 
-    scheme = get_install_scheme('system' if args.system else 'user')
-    install(args.url, scheme)
+    exitcode = 0
+
+    try:
+        scheme = get_install_scheme('system' if args.system else 'user')
+        install(args.url, scheme, confirm=args.confirm)
+    except:
+        import traceback
+        traceback.print_exc()
+        exitcode = 1
+
+    if args.prompt_before_exit:
+        input('Press ENTER to close')
+
+    return exitcode

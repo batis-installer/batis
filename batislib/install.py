@@ -72,7 +72,7 @@ class ApplicationInstaller(object):
         if os.path.isfile(path):
             self.directory = tarball.unpack_app_tarball(path)
         else:
-            self.directory = path
+            self.directory = os.path.abspath(path)
         self.directory = self.directory.rstrip('/')
         self.scheme = scheme
         with open(self._relative('batis_info', 'metadata.json')) as f:
@@ -140,7 +140,7 @@ class ApplicationInstaller(object):
             return 'install failed'
 
     def copy_application(self):
-        basename = os.path.basename(os.path.abspath(self.directory))
+        basename = os.path.basename(self.directory)
         destination = os.path.join(self.scheme['application'], basename)
         if os.path.isdir(destination):
             if os.path.isfile(pjoin(destination, 'batis_info',

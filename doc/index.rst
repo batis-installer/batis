@@ -17,11 +17,10 @@ the command line. See :doc:`packaging` to distribute your program like this.
    packaging
    faq
 
+.. topic:: Links
 
-Indices and tables
-==================
+   `Batis on Github <https://github.com/batis-installer/batis>`__
+     Source code, bug reports, etc.
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   `Example applications <http://batis-installer.github.io/example-apps/>`__
+     Working examples of packaged applications
